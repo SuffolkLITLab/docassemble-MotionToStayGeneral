@@ -1,0 +1,730 @@
+---
+include:
+  - docassemble.MAVirtualCourt:basic-questions.yml
+  - docassemble.AffidavitofIndigencyMAVC:affidavit_body.yml
+  - NOA.yml
+  - docassemble.MassAppealsCourt:appeals-basic-questions.yml
+---
+metadata:
+  title: Appeal or Stay Your Eviction
+---
+features:
+  javascript:
+    - limit_upload_size.js
+---
+code: |
+  bcc_failsafe = "cc@example.com"
+---
+code: |
+  interview_short_title = "Ask the Appeals Court to Stop Your Eviction"
+---
+objects:
+  - prepped_exhibits: DAFile.using(filename='exhibits.pdf')
+---
+id: interview order
+mandatory: True
+code: |
+  # has_evidence
+  user_role = "defendant"
+  appeals_basic_questions_intro_screen
+  info_screen
+  users[0].name.first
+  users[0].address.address
+  users[0].mobile_number
+  user_needs_interpreter
+  users.there_is_another = False
+  users.gathered = True
+  plaintiff_name
+  
+  # Copy plaintiff name into the "Other Parties" list
+  other_parties.auto_gather=False
+  other_parties[0].name.first = plaintiff_name
+  other_parties.gathered=True
+  
+  defendant_name
+  if forty_eight_hour_notice:
+    eviction_date
+    eviction_time
+  housing_court
+  housing_court_docket_number
+  housing_court_judgment_date
+  housing_court_judge
+  date_housing_court_denied_motion_to_stay
+  housing_court_denying_order_text
+  if no_notice_of_appeal_filed:
+    noa_variables
+    noa_confirmation
+  if not is_first_document:
+    appeals_court_docket_number
+  else:
+    explain_need_affidavit
+  # WARNING: file size error is not currently translatable
+  file_size_vars
+  if has_evidence:
+    review_exhibits
+    ocr_task
+  procedural_history
+  statement_of_facts
+  procedural_history
+  defendant_harm
+  plaintiff_harm
+  public_interest_harm_yesno
+  legal_issues
+  relief_sought 
+  likelihood_of_success
+  argument_summary
+  method_of_service
+  parties_to_be_served
+  service_date
+  if is_first_document:
+    indigency_intro
+    fees['Filing fee'].waive = True
+    fees['Filing fee'].amount = 315.00
+    ask_affidavit_questions
+    if not is_indigent:
+      doesnt_qualify_interstitial
+  preview_screen
+  basic_questions_signature_flow
+  users[0].signature
+  download
+---
+code: |
+  max_mb_per_file = 15
+  file_size_vars = True
+#---
+#code: |
+#  try:
+#    exhibits_total_size = sum(exhibit.size_in_bytes() for exhibit in exhibits)
+#  except:
+#    exhibits_total_size = 15 * 1024 * 1024
+---
+id: noa confirmation
+question: |
+  Here is what your Notice of Appeal looks like.
+subquestion: |
+  ${ pdf_concatenate(Notice_of_Appeal['preview']) }
+  
+  You will have a chance to add your signature to this document and download it at the end of this interview.
+  
+  Failure to file a Notice of Appeal in the ${ housing_court } may result in your Motion to Stay being denied.
+continue button field: noa_confirmation
+---
+need: prepped_exhibits
+code: |
+  ocr_task = background_action('process_exhibits')
+---
+event: process_exhibits
+code: |
+  prepped_exhibits.initialize(filename="exhibits.pdf")
+  prepped_exhibits.make_ocr_pdf(exhibits, psm=1)
+  prepped_exhibits.bates_number(prefix='EX-')
+  background_response_action('save_results',results=prepped_exhibits)
+---
+event: save_results
+code: |
+  prepped_exhibits = action_argument('results')
+  background_response()
+--- 
+id: info screen
+question: |
+  Motion to Stay Eviction
+subquestion: |
+  If a trial court judge has ordered you to be evicted, use this form to appeal the trial court judge's order and ask the appeals court to prevent your eviction. 
+  
+  Before using this form, you must ask for a Stay in the Housing Court.
+    
+  If you have not already done so, you can use this form to download a Notice of Appeal and file a Waiver of Appeal Bond. 
+  
+  To use this form, you will need relevant Housing Court documents including:
+  
+    * the Housing Court's docket
+    
+    * the complaint
+    
+    * your answer
+    
+    * the judgment
+    
+    * filings related to your motion to stay in the Housing Court
+  
+  This form cannot be directly emailed to the Supreme Judicial Court. For more information, contact the Supreme Judicial Court Clerk's office: (617) 557-1020.
+  
+  For more information on what you need to file an appeal, view the [Housing Appeal Guide](https://www.mass.gov/guides/housing-appeals-guide#-automatic-stay-pending-appeal-).
+continue button field: info_screen
+---
+objects:
+  - users: PeopleList.using(there_are_any=True)
+---
+id: housing court division 
+question: | 
+  Select the **Housing Court** department and division where your case was heard.
+fields:
+  - no label: housing_court
+    datatype: object
+    choices: macourts.filter_courts(["Housing Court"])
+--- 
+id: housing court docket number 
+question: |
+  What is the **Housing Court** docket number for your case?
+fields:
+  - Docket number: housing_court_docket_number
+--- 
+id: appeals court docket number 
+question: |
+  Is this Motion to Stay the first document you are filing in the **Appeals Court**?
+fields:
+  - no label: is_first_document
+    datatype: yesnoradio
+  - What is the **Appeals Court** docket number for your case?: appeals_court_docket_number
+    show if:
+      variable: is_first_document
+      is: False
+---
+id: explain_need_affidavit
+question: |
+  You may qualify for a fee waiver.
+subquestion: |
+  There is a filing fee to file a Motion to Stay, but you may qualify 
+  to get the fees waived.
+  
+  We will ask you questions to help you find out a little later.
+continue button field: explain_need_affidavit
+---
+id: explain affidavit of indigency
+continue button field: indigency_intro
+question: |
+  Fee waiver questions
+subquestion: |
+  The next questions will be used to find out if you
+  qualify for a fee waiver. The fee to file a Motion to Stay
+  is $315.00.
+---
+id: plaintiff
+question: |
+  Who is the **{plaintiff}** in your Housing Court case? 
+subquestion: |
+  If there is more than one plaintiff, you may enter more than one name.
+fields:
+  - Plaintiff(s): plaintiff_name
+    input type: area 
+    rows: 6
+terms:
+  plaintiff: |
+    This could be your landlord or the current owner of the property, such as a foreclosing bank or purchaser. 
+--- 
+id: defendant
+question: |
+  Who is the **defendant** in your Housing Court case?
+subquestion: |
+  If you are a defendant, please be sure to include yourself.
+  
+  If there are defendants other than you, you may enter more than one name.
+fields:
+  - Defendant(s): defendant_name
+    input type: area 
+    rows: 6
+---
+id: 48 hour notice
+question: |
+  Have you received a {48-hour notice}?
+subquestion: |
+  <CENTER>
+  [${eviction_notice.show(width='20em')}](${eviction_notice.url_for()})
+  </CENTER>
+  
+  A 48-Hour Notice can look like the one above.
+yesno: forty_eight_hour_notice
+terms:
+  48-hour notice: |
+    A notice from the constable or sheriff telling you they will move you out on a certain day and time.
+---
+objects:
+  - eviction_notice: DAStaticFile.using(filename='48_Hour_Notice.png', alt_text='48-Hour Notice')
+---
+id: 48 hour notice details
+question: |
+  When is the sheriff or constable planning to evict you?
+subquestion: |
+  This answer is 48 hours from when you received the {48-Hour Notice}.
+fields:   
+  - Date: eviction_date
+    datatype: date 
+  - Time: eviction_time
+    datatype: time
+terms:
+  48-hour notice: |
+    A notice from the constable or sheriff telling you they will move you out on a certain day and time.
+---
+id: date of housing court judgment
+question: |
+  When did the **Housing Court** enter judgment against you?
+fields:
+  - Date: housing_court_judgment_date
+    datatype: date  
+---
+id: name of housing court judge
+question: |
+  What is the name of the **Housing Court** judge who entered judgment against you?
+fields:
+  - Name: housing_court_judge
+---
+id: date notice of appeal filed
+question: |  
+  When did you file a Notice of Appeal in the **Housing Court**?
+subquestion: |
+  **Before asking for a Motion to Stay, you must first file a Notice of Appeal in the ${ housing_court }.**
+  
+  There is no standard form for the Notice of Appeal. Below is a sample.
+  
+  [${Notice.show(width='28em')}](${Notice.url_for()})
+  
+    If you have not filed a Notice of Appeal in the ${ housing_court }, you will be directed to do so if you select "I did not file a Notice of Appeal."
+fields:
+  - I did not file a Notice of Appeal: no_notice_of_appeal_filed
+    datatype: yesno
+  - Date filed: date_notice_of_appeal_filed
+    datatype: date
+    hide if: no_notice_of_appeal_filed
+--- 
+objects:
+  - Notice: DAStaticFile.using(filename='Notice_of_Appeal.png', alt_text='Notice of Appeal')  
+---
+id: date housing court denied motion to stay
+question: |  
+  When did the **Housing Court** judge deny your Motion to Stay?
+subquestion: |
+  Before using this form, you must first ask for a Stay in the ${ housing_court }.
+  
+  For more information, call the Trial Court’s Emergency HelpLine: 833-91-COURT (833-912-6878) open Monday - Friday from 8:30 am - 4:30 pm. 
+    
+fields:
+  - Date: date_housing_court_denied_motion_to_stay
+    datatype: date  
+---
+id: housing court judge order text
+question: |
+  Enter the text of the **Housing Court** judge's order denying your Motion to Stay in the Housing Court.
+fields:
+  - no label: housing_court_denying_order_text
+    input type: area 
+    rows: 6
+---
+id: legal issues raised
+question: |
+  Select the issues of law in your case.
+subquestion: |
+  A statement of the issue(s) of law is a brief statement of the legal reason that the single justice should allow your motion to stay.
+fields:
+  - no label: legal_issues
+    datatype: checkboxes
+    choices:
+      - Whether the judge abused their discretion when they ordered ${ housing_court_denying_order_text }.: Whether the judge abused their discretion when they ordered ${ housing_court_denying_order_text }.
+      - Whether the judge committed an error of law when the judge failed to follow the summary process statute (G.L. c. 239, §§1, et seq.).: Whether the judge committed an error of law when the judge failed to follow the summary process statute (G.L. c. 239, §§1, et seq.).
+      - Whether the judge committed an error of law by failing to follow the Uniform Summary Process Rules.: Whether the judge committed an error of law by failing to follow the Uniform Summary Process Rules.
+      - Whether the judge committed an error of law by allowing the plaintiff to submit evidence that should not have been considered.: Whether the judge committed an error of law by allowing the plaintiff to submit evidence that should not have been considered.
+      - Whether the judge committed an error of law by not allowing me to submit evidence that should have been considered.: Whether the judge committed an error of law by not allowing me to submit evidence that should have been considered.
+      - Whether the judge violated my constitutional right to due process of law.: Whether the judge violated my constitutional right to due process of law.
+      - Other: Other
+    none of the above: False  
+  - Other: other_legal_issues
+    show if: legal_issues["Other"]
+help:
+  label: |
+    Examples
+  content: |
+    * For example, if the Housing Court judge's order is unreasonable in light of the facts that that the judge heard at the hearing or trial, the issue of law would be whether the judge's order was an abuse of discretion.
+    * For example, if you thought the judge mistakenly did not allow you to present a piece of evidence at the hearing or trial, the issue of law would be whether the judge improperly excluded evidence at the hearing or trial. 
+---
+id: relief_sought
+question: |
+  What are you asking for?
+subquestion: |
+  Be as specific as possible.
+fields:
+  - no label: relief_sought
+    input type: area
+    rows: 6
+--- 
+id: method of service
+question: |
+  How will you deliver the required copies of the motion, memorandum, and supporting materials to the plaintiffs' attorney(s)?
+subquestion: |
+  You are required to provide a copy of this motion, memorandum, and supporting materials to the plaintiffs' attorney(s).
+  
+  If the plaintiff does not have an attorney, you are required to serve a copy on the self-represented plaintiff.  
+  
+  You should not provide a copy of your Affidavit of Indigency, if any, to anyone except the Appeals Court.  
+field: method_of_service
+dropdown:
+  - Efile and serve (efilema.com): efile and serve (efilema.com)
+  - Email: email
+  - Mail: mail
+  - Hand delivery: hand delivery
+---
+id: parties to be served
+question: |
+  List the name and address (or email address) of each attorney or self-represented party that you will deliver copies of your motion, memorandum, and supporting materials to.
+subquestion: |
+  If you are serving more than one attorney or party, you may list more than one.
+fields:
+  - no label: parties_to_be_served
+    input type: area 
+    rows: 6
+---
+id: service date
+question: |
+  When will you deliver copies of your motion, memorandum, and supporting materials to the plaintiffs' attorney(s)?
+subquestion: |
+  You are required to provide a copy of this motion, memorandum, and supporting materials to the plaintiffs' attorney(s).
+fields:
+  - Date: service_date
+    datatype: date  
+---
+id: procedural history
+question: |
+  Describe the events in your **Housing Court** case in the order they happened.
+subquestion: |
+  This is called the **procedural history**.
+  
+  Include a list of any motions that you or the plaintiff filed after the judgment was entered.
+   
+  It is important to describe whether the judgment was:
+  
+    * entered against you after a default, 
+     
+    * on an order for summary judgment, 
+     
+    * after a trial, **or**
+     
+    * pursuant to an agreement for judgment.  
+fields:
+  - no label: procedural_history
+    input type: area 
+    rows: 6
+---
+id: statement of facts
+question: |
+  Describe the **facts** of your case.
+subquestion: |
+  How did your tenancy or former ownership of the property end? Why were you evicted?
+  
+  This is called the **factual history**.
+fields:
+  - no label: statement_of_facts
+    input type: area 
+    rows: 6
+help:
+  label: |
+    Example
+  content: |
+    For example, if you filed a complaint with your local inspectional services department, describe the complaint including the date it was made and the resolution after the inspection.
+---
+id: likelihood of success
+question: |
+  Why is your appeal likely to succeed?  
+subquestion: |
+  In order to grant your request for a Stay, your motion must show that your appeal is likely to succeed.
+fields:
+  - no label: likelihood_of_success
+    input type: area 
+    rows: 6
+---
+id: harm suffered by defendant 
+question: |
+  What harm will **you or your dependents** suffer if your Motion to Stay is denied?
+subquestion: |
+  Your Motion to Stay must show that you or your dependents will suffer irreparable harm if your motion is denied.
+fields:
+  - no label: defendant_harm
+    input type: area 
+    rows: 6
+---
+id: harm suffered by plaintiff 
+question: |
+  What harm will the **{plaintiff}** suffer if your Motion to Stay is granted?
+subquestion: |
+  Your Motion to Stay must show that the plaintiff will not be harmed more than you or your dependents if your motion is granted.
+fields:
+  - no label: plaintiff_harm
+    input type: area 
+    rows: 6
+terms:
+  plaintiff: |
+    This could be your landlord or the current owner of the property, such as a foreclosing bank or purchaser.  
+---
+id: public interest harm yesno
+question: |
+  Does your Motion to Stay have an effect on the **{public interest}**?
+subquestion:  |
+  Your motion must show that the stay does not harm the public interest.
+fields:
+  - no label: public_interest_harm_yesno
+    datatype: yesnoradio
+  - What effect would your Motion to Stay have on the **public interest**?: public_interest_harm
+    input type: area 
+    rows: 6
+    show if: public_interest_harm_yesno
+terms:
+  public interest: |
+    The public interest is most often implicated:
+    
+    * in cases involving a federal subsidy ("section 9 voucher") 
+    
+    **OR** 
+    
+    * if you are a tenant in public housing and your eviction was caused by a breach of your lease other than failure to pay rent. 
+---
+id: argument summary
+question: |
+  Summarize your argument
+subquestion: |
+  Most Motions to Stay are decided without holding a hearing.  
+  
+  It is important that you include in your Motion to Stay anything that you want the court to know about your case.
+fields:
+  - no label: argument_summary
+    input type: area 
+    rows: 6
+---
+code: |
+  if is_first_document and is_indigent:
+    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
+  else:
+    final_form_to_file = [general_cover_sheet, combined_motion ]
+---
+code: |
+  form_to_file_no_cover = combined_motion
+---
+code: |
+  form_to_sign_temp = []
+  #if has_evidence:
+  #  form_to_sign_temp = [motion_attachment["preview"], exhibits]
+  #else:
+  #  form_to_sign_temp = [motion_attachment["preview"]]
+  # Dont need to show them the exhibits again--it can be slow w/ big addendum
+  form_to_sign_temp = [motion_attachment["preview"]]
+  if no_notice_of_appeal_filed:
+    form_to_sign_temp.append(Notice_of_Appeal['preview'])
+
+  form_to_sign = pdf_concatenate(form_to_sign_temp, filename="motion_to_stay_eviction.pdf")
+---
+id: review before signature
+need: form_to_sign
+continue button field: preview_screen
+question: |
+  Nearly finished
+subquestion: |
+  You are almost done! Please click on the form below. It will open in a new window so you can review it and make sure it is correct.
+  
+  Do not forget to come back to this page to click to the final step of signing and sending the form to the court. 
+  
+   ${ form_to_sign }
+
+progress: 95
+---
+id: download form
+event: download
+decoration: file-download
+question: |
+  % if not defined('email_success') or not email_success:
+  Review, Download, and Send Form
+  % else:
+  Form delivered
+  % endif
+subquestion: |
+  % if not defined('email_success') or not email_success:
+  Thank you ${users[0]}. Your form is ready to send to the court. **It is not
+  delivered until you complete the delivery process below.**
+  
+  % if no_notice_of_appeal_filed:
+  **You have two documents to deliver:** 
+  
+  1. The [:file-download: Notice of Appeal]( ${ Notice_of_Appeal['final'].pdf.url_for()} ),
+  which needs to be delivered to the **${ housing_court }**. You need to deliver
+  this on your own. Call the ${ housing_court } at ${ housing_court.phone }
+  to find out how.
+  2. Your Appeal, which needs to be delivered to ${ courts[0] }. You can deliver the appeal by following the steps below.
+  
+  Follow these steps to deliver the Appeal to the ${ courts[0] }:
+  % endif
+  
+  1. Click the preview image below to open the form in a new window.
+  1. Download and save or print a copy of this form for your 
+  records.
+  1. Click "Submit to ${courts[0]}" to send it to the court. 
+  1. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
+  % else:
+  If you do not hear from the court in 1 business day, call the   Appeals Court Clerk's Office: 617-921-4443 
+  
+  The Appeals Court Clerk's Office is open:  
+  Monday - Friday  
+  8:30am - 4:30pm
+  % endif
+  
+  ${ form_to_file_no_cover }  
+  
+  % if not defined('email_success') or not email_success:
+    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
+    
+  Or download/email below:
+  % else:
+    Your email has already been delivered to ${courts[0]}
+
+  % for file in final_form_to_file:
+  % if hasattr(file, 'info'):
+  * [:file-download: ${ file.info.get("filename") }](${file.url_for()})
+  % elif hasattr(file, 'file_info'):
+  * [:file-download: ${ file.file_info.get("filename") }](${file.url_for()})
+  % else:
+  * [:file-download: ${ str(file) }](${file.url_for()})
+  % endif
+  % endfor 
+  % endif
+progress: 100
+section: download
+attachment code: motion_attachment["final"]
+---
+code: |
+  if has_evidence:
+    if not ocr_task.ready():
+      waiting_screen
+    if not prepped_exhibits.ok:
+      try:
+        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="motion_to_stay_eviction.pdf")
+      except:
+        combined_motion_temp = motion_attachment['final']
+    else:      
+      prepped_exhibits.set_attributes(private=False)
+      if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
+        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="motion_to_stay_eviction.pdf")
+      else:
+        combined_motion_temp = [motion_attachment["final"]]
+  else:
+    combined_motion_temp = [motion_attachment["final"]]
+  #if no_notice_of_appeal_filed:
+  #  combined_motion_temp.append(Notice_of_Appeal['final'])
+  combined_motion = pdf_concatenate(combined_motion_temp, filename="motion_to_stay_eviction.pdf")
+---
+event: waiting_screen
+reload: True
+question: |
+  <i class="fas fa-cog fa-spin"></i> Please wait while we process your documents . . . <i class="fas fa-cog fa-spin"></i>
+---
+objects:
+  - motion_attachment: DADict
+---
+attachment:
+  - name: Motion to Stay Eviction
+    variable name: motion_attachment[i]
+    filename: Motion_To_Stay_Eviction
+    docx template file: Motion_To_Stay_Eviction.docx
+---
+objects:
+  - exhibits: DAFileList.using(auto_gather=False, gathered=True)
+---
+id: record appendix
+question: |
+  You are required to submit copies of relevant Housing Court documents. 
+subquestion: |  
+  Examples include: 
+  
+    * the Housing Court's docket 
+    
+    * the complaint
+    
+    * your answer
+    
+    * the judgment
+    
+    * filings related to your motion to stay in the Housing Court.
+    
+  If you entered into an agreement for judgment, include a copy of the agreement for judgment.
+fields:
+  - Do you have any documents to share with the judge?: has_evidence
+    datatype: yesnoradio
+  - I state that filing a complete record appendix is impracticable.: no_record_statement
+    datatype: yesno
+    show if: 
+      variable: has_evidence      
+      is: False
+  - Tap "browse" and choose all of the documents you want to upload at once. You can edit or add additional documents on the next screen.: exhibits
+    datatype: files
+    show if: has_evidence
+    maximum image size: 1024
+    image upload type: jpeg    
+    accept: |
+      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"
+validation code: |
+  if has_evidence and sum(exhibit.size_in_bytes() for exhibit in exhibits) > (15 * 1024 * 1024):
+    validation_error("Please upload a file smaller than 15 MB.")
+---
+table: exhibits.table
+rows: exhibits
+allow reordering: True
+columns:
+  - File name: showifdef(row_item.attr_name('filename'))
+  # - Size: row_item.size_in_bytes() / 1024 / 1024
+  - Thumbnail: row_item.show(width="100px")  
+delete buttons: True
+---
+id: add additional document
+question: |
+  Exhibit document ${i+1}  
+fields:
+  - no label: exhibits[i]
+    datatype: file
+    accept: |
+      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  # Upload field creates a DAFileList
+  # We want it to be a plain DAFile instead
+  if isinstance(exhibits[i], DAFileList):
+    temp_name = exhibits[i].instanceName
+    exhibits[i] = next(iter(exhibits[i]))
+    # Make sure the "instanceName" shows the correct position in the list,
+    # instead of showing a nested DAFileList's instanceName
+    exhibits[i].instanceName = temp_name
+---
+id: review exhibits
+question: |
+  Review your exhibits
+subquestion: |
+  Look at the exhibits below. If you want to change the order, use the arrows
+  to move an exhibit up or down in the list. Click "delete" or "add another"
+  to change which exhibits you send to the court.
+  
+  ${ exhibits.table }
+  
+  ${exhibits.add_action() }
+continue button field: review_exhibits 
+---
+---
+id: email to court
+template: email_to_court_template
+subject: |
+  MassAccess submission from ${users} intended for ${courts[0]}
+content: |
+  % if has_evidence and prepped_exhibits.ok and prepped_exhibits.size_in_bytes() > 10 * 1024 * 1024:
+  **The user provided an attachment that is too large to email.**
+  [Link to exhibits](${ prepped_exhibits.url_for(external=True) } )
+  % endif
+  
+  At ${current_datetime().format_datetime()},
+  ${users} submitted the attached ${package_title} form(s).
+
+  &nbsp;        | &nbsp;
+  --------------|-----------
+  Date of email | ${current_datetime().format_datetime()}
+  Pages | ${num_package_pages }  
+  Preferred language | ${ user_preferred_language if user_needs_interpreter else 'English' }
+  Mobile phone | ${showifdef('users[0].mobile_number')}
+  Other phone | ${showifdef('users[0].phone_number')}
+  Email | ${showifdef('users[0].email')}
+  Contact details/other | ${showifdef('users[0].other_contact_method')}
+  
+  Comments for clerk: 
+  
+  ${ showifdef('comments_to_clerk')}
+  
+  Please contact ${users} in the next business day to
+  confirm that you received this message.

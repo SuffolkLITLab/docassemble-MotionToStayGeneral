@@ -6,7 +6,7 @@ include:
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
 ---
 metadata:
-  title: Appeal or Stay Your Eviction
+  title: Motion to Stay General
 ---
 features:
   javascript:
@@ -16,7 +16,7 @@ code: |
   bcc_failsafe = "cc@example.com"
 ---
 code: |
-  interview_short_title = "Ask the Appeals Court to Stop Your Eviction"
+  interview_short_title = "Ask the Appeals Court for a Motion to Stay"
 ---
 objects:
   - prepped_exhibits: DAFile.using(filename='exhibits.pdf')
@@ -42,15 +42,12 @@ code: |
   other_parties.gathered=True
   
   defendant_name
-  if forty_eight_hour_notice:
-    eviction_date
-    eviction_time
-  housing_court
-  housing_court_docket_number
-  housing_court_judgment_date
-  housing_court_judge
-  date_housing_court_denied_motion_to_stay
-  housing_court_denying_order_text
+  trial_court
+  trial_court_docket_number
+  trial_court_judgment_date
+  trial_court_judge
+  date_trial_court_denied_motion_to_stay
+  trial_court_denying_order_text
   if no_notice_of_appeal_filed:
     noa_variables
     noa_confirmation
@@ -106,7 +103,7 @@ subquestion: |
   
   You will have a chance to add your signature to this document and download it at the end of this interview.
   
-  Failure to file a Notice of Appeal in the ${ housing_court } may result in your Motion to Stay being denied.
+  Failure to file a Notice of Appeal in the ${ trial_court } may result in your Motion to Stay being denied.
 continue button field: noa_confirmation
 ---
 need: prepped_exhibits
@@ -127,17 +124,15 @@ code: |
 --- 
 id: info screen
 question: |
-  Motion to Stay Eviction
-subquestion: |
-  If a trial court judge has ordered you to be evicted, use this form to appeal the trial court judge's order and ask the appeals court to prevent your eviction. 
-  
-  Before using this form, you must ask for a Stay in the Housing Court.
+  Motion to Stay
+subquestion: | 
+  Before using this form, you must ask for a Stay in the Trial Court.
     
   If you have not already done so, you can use this form to download a Notice of Appeal and file a Waiver of Appeal Bond. 
   
-  To use this form, you will need relevant Housing Court documents including:
+  To use this form, you will need relevant Trial Court documents including:
   
-    * the Housing Court's docket
+    * the Trial Court's docket
     
     * the complaint
     
@@ -145,29 +140,34 @@ subquestion: |
     
     * the judgment
     
-    * filings related to your motion to stay in the Housing Court
+    * filings related to your Motion to Stay in the Trial Court
   
   This form cannot be directly emailed to the Supreme Judicial Court. For more information, contact the Supreme Judicial Court Clerk's office: (617) 557-1020.
   
-  For more information on what you need to file an appeal, view the [Housing Appeal Guide](https://www.mass.gov/guides/housing-appeals-guide#-automatic-stay-pending-appeal-).
 continue button field: info_screen
 ---
 objects:
   - users: PeopleList.using(there_are_any=True)
 ---
-id: housing court division 
+id: trial court division 
 question: | 
-  Select the **Housing Court** department and division where your case was heard.
+  Select the **Trial Court** department and division where your case was heard.
 fields:
-  - no label: housing_court
+  - no label: trial_court
     datatype: object
-    choices: macourts.filter_courts(["Housing Court"])
+    choices: macourts.filter_courts(["Boston Municipal Court",
+      "District Court",
+      "Superior Court",
+      "Housing Court",
+      "Probate and Family Court",
+      "Juvenile Court",
+      "Land Court"])
 --- 
-id: housing court docket number 
+id: trial court docket number 
 question: |
-  What is the **Housing Court** docket number for your case?
+  What is the **Trial Court** docket number for your case?
 fields:
-  - Docket number: housing_court_docket_number
+  - Docket number: trial_court_docket_number
 --- 
 id: appeals court docket number 
 question: |
@@ -201,20 +201,17 @@ subquestion: |
 ---
 id: plaintiff
 question: |
-  Who is the **{plaintiff}** in your Housing Court case? 
+  Who is the **plaintiff** in your Trial Court case? 
 subquestion: |
   If there is more than one plaintiff, you may enter more than one name.
 fields:
   - Plaintiff(s): plaintiff_name
     input type: area 
     rows: 6
-terms:
-  plaintiff: |
-    This could be your landlord or the current owner of the property, such as a foreclosing bank or purchaser. 
 --- 
 id: defendant
 question: |
-  Who is the **defendant** in your Housing Court case?
+  Who is the **defendant** in your Trial Court case?
 subquestion: |
   If you are a defendant, please be sure to include yourself.
   
@@ -224,61 +221,30 @@ fields:
     input type: area 
     rows: 6
 ---
-id: 48 hour notice
+id: date of trial court judgment
 question: |
-  Have you received a {48-hour notice}?
-subquestion: |
-  <CENTER>
-  [${eviction_notice.show(width='20em')}](${eviction_notice.url_for()})
-  </CENTER>
-  
-  A 48-Hour Notice can look like the one above.
-yesno: forty_eight_hour_notice
-terms:
-  48-hour notice: |
-    A notice from the constable or sheriff telling you they will move you out on a certain day and time.
----
-objects:
-  - eviction_notice: DAStaticFile.using(filename='48_Hour_Notice.png', alt_text='48-Hour Notice')
----
-id: 48 hour notice details
-question: |
-  When is the sheriff or constable planning to evict you?
-subquestion: |
-  This answer is 48 hours from when you received the {48-Hour Notice}.
-fields:   
-  - Date: eviction_date
-    datatype: date 
-  - Time: eviction_time
-    datatype: time
-terms:
-  48-hour notice: |
-    A notice from the constable or sheriff telling you they will move you out on a certain day and time.
----
-id: date of housing court judgment
-question: |
-  When did the **Housing Court** enter judgment against you?
+  When did the **Trial Court** enter judgment against you?
 fields:
-  - Date: housing_court_judgment_date
+  - Date: trial_court_judgment_date
     datatype: date  
 ---
-id: name of housing court judge
+id: name of trial court judge
 question: |
-  What is the name of the **Housing Court** judge who entered judgment against you?
+  What is the name of the **Trial Court** judge who entered judgment against you?
 fields:
-  - Name: housing_court_judge
+  - Name: trial_court_judge
 ---
 id: date notice of appeal filed
 question: |  
-  When did you file a Notice of Appeal in the **Housing Court**?
+  When did you file a Notice of Appeal in the **Trial Court**?
 subquestion: |
-  **Before asking for a Motion to Stay, you must first file a Notice of Appeal in the ${ housing_court }.**
+  **Before asking for a Motion to Stay, you must first file a Notice of Appeal in the ${ trial_court }.**
   
   There is no standard form for the Notice of Appeal. Below is a sample.
   
   [${Notice.show(width='28em')}](${Notice.url_for()})
   
-    If you have not filed a Notice of Appeal in the ${ housing_court }, you will be directed to do so if you select "I did not file a Notice of Appeal."
+    If you have not filed a Notice of Appeal in the ${ trial_court }, you will be directed to do so if you select "I did not file a Notice of Appeal."
 fields:
   - I did not file a Notice of Appeal: no_notice_of_appeal_filed
     datatype: yesno
@@ -289,23 +255,23 @@ fields:
 objects:
   - Notice: DAStaticFile.using(filename='Notice_of_Appeal.png', alt_text='Notice of Appeal')  
 ---
-id: date housing court denied motion to stay
+id: date trial court denied motion to stay
 question: |  
-  When did the **Housing Court** judge deny your Motion to Stay?
+  When did the **Trial Court** judge deny your Motion to Stay?
 subquestion: |
-  Before using this form, you must first ask for a Stay in the ${ housing_court }.
+  Before using this form, you must first ask for a Stay in the ${ trial_court }.
   
   For more information, call the Trial Court’s Emergency HelpLine: 833-91-COURT (833-912-6878) open Monday - Friday from 8:30 am - 4:30 pm. 
     
 fields:
-  - Date: date_housing_court_denied_motion_to_stay
+  - Date: date_trial_court_denied_motion_to_stay
     datatype: date  
 ---
-id: housing court judge order text
+id: trial court judge order text
 question: |
-  Enter the text of the **Housing Court** judge's order denying your Motion to Stay in the Housing Court.
+  Enter the text of the **Trial Court** judge's order denying your Motion to Stay.
 fields:
-  - no label: housing_court_denying_order_text
+  - no label: trial_court_denying_order_text
     input type: area 
     rows: 6
 ---
@@ -318,7 +284,7 @@ fields:
   - no label: legal_issues
     datatype: checkboxes
     choices:
-      - Whether the judge abused their discretion when they ordered ${ housing_court_denying_order_text }.: Whether the judge abused their discretion when they ordered ${ housing_court_denying_order_text }.
+      - Whether the judge abused their discretion when they ordered ${ trial_court_denying_order_text }.: Whether the judge abused their discretion when they ordered ${ trial_court_denying_order_text }.
       - Whether the judge committed an error of law when the judge failed to follow the summary process statute (G.L. c. 239, §§1, et seq.).: Whether the judge committed an error of law when the judge failed to follow the summary process statute (G.L. c. 239, §§1, et seq.).
       - Whether the judge committed an error of law by failing to follow the Uniform Summary Process Rules.: Whether the judge committed an error of law by failing to follow the Uniform Summary Process Rules.
       - Whether the judge committed an error of law by allowing the plaintiff to submit evidence that should not have been considered.: Whether the judge committed an error of law by allowing the plaintiff to submit evidence that should not have been considered.
@@ -332,7 +298,7 @@ help:
   label: |
     Examples
   content: |
-    * For example, if the Housing Court judge's order is unreasonable in light of the facts that that the judge heard at the hearing or trial, the issue of law would be whether the judge's order was an abuse of discretion.
+    * For example, if the Trial Court judge's order is unreasonable in light of the facts that that the judge heard at the hearing or trial, the issue of law would be whether the judge's order was an abuse of discretion.
     * For example, if you thought the judge mistakenly did not allow you to present a piece of evidence at the hearing or trial, the issue of law would be whether the judge improperly excluded evidence at the hearing or trial. 
 ---
 id: relief_sought
@@ -382,7 +348,7 @@ fields:
 ---
 id: procedural history
 question: |
-  Describe the events in your **Housing Court** case in the order they happened.
+  Describe the events in your **Trial Court** case in the order they happened.
 subquestion: |
   This is called the **procedural history**.
   
@@ -406,8 +372,6 @@ id: statement of facts
 question: |
   Describe the **facts** of your case.
 subquestion: |
-  How did your tenancy or former ownership of the property end? Why were you evicted?
-  
   This is called the **factual history**.
 fields:
   - no label: statement_of_facts
@@ -441,38 +405,26 @@ fields:
 ---
 id: harm suffered by plaintiff 
 question: |
-  What harm will the **{plaintiff}** suffer if your Motion to Stay is granted?
+  What harm will the **plaintiff** suffer if your Motion to Stay is granted?
 subquestion: |
   Your Motion to Stay must show that the plaintiff will not be harmed more than you or your dependents if your motion is granted.
 fields:
   - no label: plaintiff_harm
     input type: area 
     rows: 6
-terms:
-  plaintiff: |
-    This could be your landlord or the current owner of the property, such as a foreclosing bank or purchaser.  
 ---
 id: public interest harm yesno
 question: |
-  Does your Motion to Stay have an effect on the **{public interest}**?
+  Does your Motion to Stay have an effect on the public interest?
 subquestion:  |
   Your motion must show that the stay does not harm the public interest.
 fields:
   - no label: public_interest_harm_yesno
     datatype: yesnoradio
-  - What effect would your Motion to Stay have on the **public interest**?: public_interest_harm
+  - What effect would your Motion to Stay have on the public interest?: public_interest_harm
     input type: area 
     rows: 6
     show if: public_interest_harm_yesno
-terms:
-  public interest: |
-    The public interest is most often implicated:
-    
-    * in cases involving a federal subsidy ("section 9 voucher") 
-    
-    **OR** 
-    
-    * if you are a tenant in public housing and your eviction was caused by a breach of your lease other than failure to pay rent. 
 ---
 id: argument summary
 question: |
@@ -506,7 +458,7 @@ code: |
   if no_notice_of_appeal_filed:
     form_to_sign_temp.append(Notice_of_Appeal['preview'])
 
-  form_to_sign = pdf_concatenate(form_to_sign_temp, filename="motion_to_stay_eviction.pdf")
+  form_to_sign = pdf_concatenate(form_to_sign_temp, filename="motion_to_stay_general.pdf")
 ---
 id: review before signature
 need: form_to_sign
@@ -540,8 +492,8 @@ subquestion: |
   **You have two documents to deliver:** 
   
   1. The [:file-download: Notice of Appeal]( ${ Notice_of_Appeal['final'].pdf.url_for()} ),
-  which needs to be delivered to the **${ housing_court }**. You need to deliver
-  this on your own. Call the ${ housing_court } at ${ housing_court.phone }
+  which needs to be delivered to the **${ trial_court }**. You need to deliver
+  this on your own. Call the ${ trial_court } at ${ trial_court.phone }
   to find out how.
   2. Your Appeal, which needs to be delivered to ${ courts[0] }. You can deliver the appeal by following the steps below.
   
@@ -590,20 +542,20 @@ code: |
       waiting_screen
     if not prepped_exhibits.ok:
       try:
-        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="motion_to_stay_eviction.pdf")
+        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="motion_to_stay_general.pdf")
       except:
         combined_motion_temp = motion_attachment['final']
     else:      
       prepped_exhibits.set_attributes(private=False)
       if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
-        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="motion_to_stay_eviction.pdf")
+        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="motion_to_stay_general.pdf")
       else:
         combined_motion_temp = [motion_attachment["final"]]
   else:
     combined_motion_temp = [motion_attachment["final"]]
   #if no_notice_of_appeal_filed:
   #  combined_motion_temp.append(Notice_of_Appeal['final'])
-  combined_motion = pdf_concatenate(combined_motion_temp, filename="motion_to_stay_eviction.pdf")
+  combined_motion = pdf_concatenate(combined_motion_temp, filename="motion_to_stay_general.pdf")
 ---
 event: waiting_screen
 reload: True
@@ -614,21 +566,21 @@ objects:
   - motion_attachment: DADict
 ---
 attachment:
-  - name: Motion to Stay Eviction
+  - name: Motion to Stay General
     variable name: motion_attachment[i]
-    filename: Motion_To_Stay_Eviction
-    docx template file: Motion_To_Stay_Eviction.docx
+    filename: Motion_To_Stay_General
+    docx template file: Motion_To_Stay_General.docx
 ---
 objects:
   - exhibits: DAFileList.using(auto_gather=False, gathered=True)
 ---
 id: record appendix
 question: |
-  You are required to submit copies of relevant Housing Court documents. 
+  You are required to submit copies of relevant Trial Court documents. 
 subquestion: |  
   Examples include: 
   
-    * the Housing Court's docket 
+    * the Trial Court's docket 
     
     * the complaint
     
@@ -636,7 +588,7 @@ subquestion: |
     
     * the judgment
     
-    * filings related to your motion to stay in the Housing Court.
+    * filings related to your Motion to Stay in the Trial Court.
     
   If you entered into an agreement for judgment, include a copy of the agreement for judgment.
 fields:
@@ -697,7 +649,6 @@ subquestion: |
   
   ${exhibits.add_action() }
 continue button field: review_exhibits 
----
 ---
 id: email to court
 template: email_to_court_template

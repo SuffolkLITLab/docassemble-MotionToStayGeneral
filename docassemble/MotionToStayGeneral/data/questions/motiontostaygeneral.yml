@@ -25,7 +25,7 @@ id: interview order
 mandatory: True
 code: |
   # has_evidence
-  user_role = "defendant"
+  # user_role = "defendant"
   appeals_basic_questions_intro_screen
   info_screen
   users[0].name.first
@@ -34,14 +34,19 @@ code: |
   user_needs_interpreter
   users.there_is_another = False
   users.gathered = True
-  plaintiff_name
+  user_ask_role
+  other_parties.there_are_any = True
+  plaintiffs.gather()
+  defendants.gather()
+  other_parties.gather()
+  #plaintiff_name
   
   # Copy plaintiff name into the "Other Parties" list
-  other_parties.auto_gather=False
-  other_parties[0].name.first = plaintiff_name
-  other_parties.gathered=True
+  #other_parties.auto_gather=False
+  #other_parties[0].name.first = plaintiff_name
+  #other_parties.gathered=True
   
-  defendant_name
+  #defendant_name
   trial_court
   trial_court_docket_number
   trial_court_judgment_date
@@ -236,7 +241,7 @@ fields:
 ---
 id: date notice of appeal filed
 question: |  
-  When did you file a Notice of Appeal in the **Trial Court**?
+  When did you file a Notice of Appeal in the **${ trial_court }**?
 subquestion: |
   **Before asking for a Motion to Stay, you must first file a Notice of Appeal in the ${ trial_court }.**
   
@@ -313,9 +318,9 @@ fields:
 --- 
 id: method of service
 question: |
-  How will you deliver the required copies of the motion, memorandum, and supporting materials to the plaintiffs' attorney(s)?
+  How will you deliver the required copies of the motion, memorandum, and supporting materials to ${ other_parties }'s attorney(s)?
 subquestion: |
-  You are required to provide a copy of this motion, memorandum, and supporting materials to the plaintiffs' attorney(s).
+  You are required to provide a copy of this motion, memorandum, and supporting materials to ${ other_parties }'s attorney(s).
   
   If the plaintiff does not have an attorney, you are required to serve a copy on the self-represented plaintiff.  
   
@@ -339,9 +344,9 @@ fields:
 ---
 id: service date
 question: |
-  When will you deliver copies of your motion, memorandum, and supporting materials to the plaintiffs' attorney(s)?
+  When will you deliver copies of your motion, memorandum, and supporting materials to ${ other_parties }'s attorney(s)?
 subquestion: |
-  You are required to provide a copy of this motion, memorandum, and supporting materials to the plaintiffs' attorney(s).
+  You are required to provide a copy of this motion, memorandum, and supporting materials to ${ other_parties }'s attorney(s).
 fields:
   - Date: service_date
     datatype: date  

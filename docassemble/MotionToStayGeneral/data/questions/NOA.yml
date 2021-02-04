@@ -12,23 +12,29 @@ id: interview order
 # mandatory: True
 code: |
   noa_intro
-  user_role = "defendant"
+  # user_role = "defendant"
   # noa_intro
   users[0].name.first
   users[0].address.address
   users[0].mobile_number
   users.there_is_another = False
   users.gathered = True
-  plaintiff_name
+  user_ask_role
+  other_parties.there_are_any = True
+  plaintiffs.gather()
+  defendants.gather()
+  other_parties.gather()
   
-    # Copy plaintiff name into the "Other Parties" list
-  other_parties.auto_gather=False
-  other_parties[0].name.first = plaintiff_name
-  other_parties.gathered=True
+  #plaintiff_name
   
-  defendant_name
-  housing_court
-  housing_court_docket_number
+  # Copy plaintiff name into the "Other Parties" list
+  #other_parties.auto_gather=False
+  #other_parties[0].name.first = plaintiff_name
+  #other_parties.gathered=True
+  
+  #defendant_name
+  trial_court
+  trial_court_docket_number
   judgment_appealing
   judgment_date
   noa_method_of_service
@@ -44,18 +50,17 @@ objects:
 ---
 id: noa intro
 question: | 
-  You need to file a Notice of Appeal in the Housing Court.
+  You need to file a Notice of Appeal in the ${ trial_court }.
 subquestion: | 
-  **Failure to file a Notice of Appeal in the Housing Court may result in your Motion to Stay being denied.**
+  **Failure to file a Notice of Appeal in the ${ trial_court } may result in your Motion to Stay being denied.**
   
   This short online form will help you fill out a Notice of Appeal.
   
-  For more information on what you need to file a Notice of Appeal, view the [Housing Appeal Guide](https://www.mass.gov/guides/housing-appeals-guide#-automatic-stay-pending-appeal-).
 continue button field: noa_intro
 ---
 id: plaintiff
 question: |
-  Who is the **{plaintiff}** in your Housing Court case? 
+  Who is the **{plaintiff}** in your Trial Court case? 
 subquestion: |
   If there is more than one plaintiff, you may enter more than one name.
 fields:
@@ -68,7 +73,7 @@ terms:
 --- 
 id: defendant
 question: |
-  Who is the **defendant** in your Housing Court case?
+  Who is the **defendant** in your Trial Court case?
 subquestion: |
   If you are a defendant, please be sure to include yourself.
   
@@ -78,19 +83,25 @@ fields:
     input type: area 
     rows: 6
 ---
-id: housing court division 
+id: trial court division 
 question: | 
-  Select the **Housing Court** department and division where your case was heard.
+  Select the **Trial Court** department and division where your case was heard.
 fields:
-  - no label: housing_court
+  - no label: trial_court
     datatype: object
-    choices: macourts.filter_courts(["Housing Court"])
+    choices: macourts.filter_courts(["Boston Municipal Court",
+      "District Court",
+      "Superior Court",
+      "Housing Court",
+      "Probate and Family Court",
+      "Juvenile Court",
+      "Land Court"])
 --- 
-id: housing court docket number 
+id: trial court docket number 
 question: |
-  What is the **Housing Court** docket number for your case?
+  What is the **Trial Court** docket number for your case?
 fields:
-  - Docket number: housing_court_docket_number
+  - Docket number: trial_court_docket_number
 ---
 id: type of judgment
 question: |
@@ -115,9 +126,9 @@ fields:
 --- 
 id: method of service
 question: |
-  How will you deliver the required copies of your Notice of Appeal to the plaintiffs' attorney(s)?
+  How will you deliver the required copies of your Notice of Appeal to ${ other_parties }'s attorney(s)?
 subquestion: |  
-  You are required to provide a copy of your Notice of Appeal to the plaintiffs' attorney(s).  
+  You are required to provide a copy of your Notice of Appeal to ${ other_parties }'s attorney(s).  
 field: noa_method_of_service
 dropdown:
   - Efile and serve (efilema.com): efile and serve (efilema.com)
@@ -127,9 +138,9 @@ dropdown:
 ---
 id: service date
 question: |
-  When will you deliver copies of your Notice of Appeal to the plaintiffs' attorney(s)?
+  When will you deliver copies of your Notice of Appeal to ${ other_parties }'s attorney(s)?
 subquestion: |
-  You are required to provide a copy of your Notice of Appeal to the plaintiffs' attorney(s).
+  You are required to provide a copy of your Notice of Appeal to ${ other_parties }'s attorney(s).
 fields:
   - Date: noa_service_date
     datatype: date  
@@ -159,7 +170,7 @@ subquestion: |
   
   You are required to provide a copy of your Notice of Appeal to the plaintiffs' attorney(s).
   
-  You must submit a copy of your Notice of Appeal to ${   housing_court }.
+  You must submit a copy of your Notice of Appeal to ${ trial_court }.
   
   Below is a preview of your form.
   

@@ -2,6 +2,7 @@
 include:
   - docassemble.MAVirtualCourt:basic-questions.yml
   - docassemble.AffidavitofIndigencyMAVC:affidavit_body.yml
+  - docassemble.AppealsCivilDocketingStatement:civil_docketing_statement.yml
   - NOA.yml
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
 ---
@@ -53,6 +54,10 @@ code: |
   trial_court_judge
   date_trial_court_denied_motion_to_stay
   trial_court_denying_order_text
+  
+  # trigger civil docketing statement
+  civil_docketing_statement_intro
+  
   if no_notice_of_appeal_filed:
     noa_variables
     noa_confirmation
@@ -459,7 +464,7 @@ code: |
   #else:
   #  form_to_sign_temp = [motion_attachment["preview"]]
   # Dont need to show them the exhibits again--it can be slow w/ big addendum
-  form_to_sign_temp = [motion_attachment["preview"]]
+  form_to_sign_temp = [motion_attachment["preview"], civil_docketing_statement_attachment['preview']]
   if no_notice_of_appeal_filed:
     form_to_sign_temp.append(Notice_of_Appeal['preview'])
 
@@ -547,7 +552,7 @@ code: |
       waiting_screen
     if not prepped_exhibits.ok:
       try:
-        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="motion_to_stay_general.pdf")
+        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, civil_docketing_statement_attachment['final'], filename="motion_to_stay_general.pdf")
       except:
         combined_motion_temp = motion_attachment['final']
     else:      

@@ -2,9 +2,9 @@
 include:
   - docassemble.MAVirtualCourt:basic-questions.yml
   - docassemble.AffidavitofIndigencyMAVC:affidavit_body.yml
-  - docassemble.AppealsCivilDocketingStatement:civil_docketing_statement.yml
   - NOA.yml
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
+  - docassemble.AppealsCivilDocketingStatement:civil_docketing_statement.yml
 ---
 metadata:
   title: Motion to Stay General
@@ -454,9 +454,9 @@ fields:
 ---
 code: |
   if is_first_document and is_indigent:
-    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
+    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment, civil_docketing_statement_attachment]
   else:
-    final_form_to_file = [general_cover_sheet, combined_motion ]
+    final_form_to_file = [general_cover_sheet, combined_motion, civil_docketing_statement_attachment]
 ---
 code: |
   form_to_file_no_cover = combined_motion
@@ -558,13 +558,13 @@ code: |
       try:
         combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, civil_docketing_statement_attachment['final'], filename="Motion_to_Stay.pdf")
       except:
-        combined_motion_temp = motion_attachment['final']
+        combined_motion_temp = pdf_concatenate(motion_attachment['final'], civil_docketing_statement_attachment['final'], filename="motion_to_stay_general.pdf")
     else:      
       prepped_exhibits.set_attributes(private=False)
       if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
-        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="Motion_to_Stay.pdf")
+        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, civil_docketing_statement_attachment['final'], filename="Motion_to_Stay.pdf")
       else:
-        combined_motion_temp = [motion_attachment["final"]]
+        combined_motion_temp = pdf_concatenate(motion_attachment["final"], civil_docketing_statement_attachment['final'], filename="motion_to_stay_general.pdf")
   else:
     combined_motion_temp = [motion_attachment["final"]]
   #if no_notice_of_appeal_filed:

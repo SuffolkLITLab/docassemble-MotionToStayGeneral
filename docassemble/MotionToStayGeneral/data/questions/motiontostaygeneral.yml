@@ -56,7 +56,8 @@ code: |
   trial_court_denying_order_text
   
   # trigger civil docketing statement
-  civil_docketing_statement_intro
+  if needs_civil_docketing_statement:
+    civil_docketing_statement_intro
   
   if no_notice_of_appeal_filed:
     noa_variables
@@ -155,6 +156,11 @@ subquestion: |
   This form cannot be directly emailed to the Supreme Judicial Court. For more information, contact the Supreme Judicial Court Clerk's office: (617) 557-1020.
   
 continue button field: info_screen
+---
+id: civil docketing statement yesno
+question: |
+  Do you still need to file a Civil Docketing Statement?
+yesno: needs_civil_docketing_statement
 ---
 objects:
   - users: PeopleList.using(there_are_any=True)
@@ -453,10 +459,12 @@ fields:
     rows: 6
 ---
 code: |
-  if is_first_document and is_indigent:
+  if is_first_document and is_indigent and needs_civil_docketing_statement:
     final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment, civil_docketing_statement_attachment]
+  elif is_first_document and is_indigent:
+    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
   else:
-    final_form_to_file = [general_cover_sheet, combined_motion, civil_docketing_statement_attachment]
+    final_form_to_file = [general_cover_sheet, combined_motion]
 ---
 code: |
   form_to_file_no_cover = combined_motion
@@ -468,10 +476,13 @@ code: |
   #else:
   #  form_to_sign_temp = [motion_attachment["preview"]]
   # Dont need to show them the exhibits again--it can be slow w/ big addendum
-  form_to_sign_temp = [motion_attachment["preview"], civil_docketing_statement_attachment['preview']]
+  form_to_sign_temp = [motion_attachment["preview"]]
   if no_notice_of_appeal_filed:
     form_to_sign_temp.append(Notice_of_Appeal['preview'])
 
+  if needs_civil_docketing_statement:
+    form_to_sign_temp.append(civil_docketing_statement_attachment['preview'])
+    
   form_to_sign = pdf_concatenate(form_to_sign_temp, filename="Motion_to_Stay.pdf")
 ---
 id: review before signature
@@ -558,13 +569,13 @@ code: |
       try:
         combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, civil_docketing_statement_attachment['final'], filename="Motion_to_Stay.pdf")
       except:
-        combined_motion_temp = pdf_concatenate(motion_attachment['final'], civil_docketing_statement_attachment['final'], filename="motion_to_stay_general.pdf")
+        combined_motion_temp = pdf_concatenate(motion_attachment['final'], filename="motion_to_stay_general.pdf")
     else:      
       prepped_exhibits.set_attributes(private=False)
       if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
         combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, civil_docketing_statement_attachment['final'], filename="Motion_to_Stay.pdf")
       else:
-        combined_motion_temp = pdf_concatenate(motion_attachment["final"], civil_docketing_statement_attachment['final'], filename="motion_to_stay_general.pdf")
+        combined_motion_temp = pdf_concatenate(motion_attachment["final"], filename="motion_to_stay_general.pdf")
   else:
     combined_motion_temp = [motion_attachment["final"]]
   #if no_notice_of_appeal_filed:

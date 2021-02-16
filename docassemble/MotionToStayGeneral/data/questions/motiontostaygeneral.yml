@@ -68,8 +68,8 @@ code: |
   procedural_history
   statement_of_facts
   procedural_history
-  defendant_harm
-  plaintiff_harm
+  user_harm
+  other_party_harm
   public_interest_harm_yesno
   legal_issues
   relief_sought 
@@ -231,13 +231,14 @@ question: |
   When did the **Trial Court** enter judgment against you?
 fields:
   - Date: trial_court_judgment_date
-    datatype: date  
+    datatype: date
+    max: ${ today() }
 ---
 id: name of trial court judge
 question: |
   What is the name of the **Trial Court** judge who entered judgment against you?
 fields:
-  - Name: trial_court_judge
+  - Judge: trial_court_judge
 ---
 id: date notice of appeal filed
 question: |  
@@ -255,6 +256,7 @@ fields:
     datatype: yesno
   - Date filed: date_notice_of_appeal_filed
     datatype: date
+    max: ${ today() }
     hide if: no_notice_of_appeal_filed
 --- 
 objects:
@@ -270,7 +272,8 @@ subquestion: |
     
 fields:
   - Date: date_trial_court_denied_motion_to_stay
-    datatype: date  
+    datatype: date
+    max: ${ today() }
 ---
 id: trial court judge order text
 question: |
@@ -350,6 +353,7 @@ subquestion: |
 fields:
   - Date: service_date
     datatype: date  
+    min: ${ today() }
 ---
 id: procedural history
 question: |
@@ -404,17 +408,17 @@ question: |
 subquestion: |
   Your Motion to Stay must show that you or your dependents will suffer irreparable harm if your motion is denied.
 fields:
-  - no label: defendant_harm
+  - no label: user_harm
     input type: area 
     rows: 6
 ---
-id: harm suffered by plaintiff 
+id: harm suffered by other party 
 question: |
-  What harm will the **plaintiff** suffer if your Motion to Stay is granted?
+  What harm will the **other party** suffer if your Motion to Stay is granted?
 subquestion: |
-  Your Motion to Stay must show that the plaintiff will not be harmed more than you or your dependents if your motion is granted.
+  Your Motion to Stay must show that the other party will not be harmed more than you or your dependents if your motion is granted.
 fields:
-  - no label: plaintiff_harm
+  - no label: other_party_harm
     input type: area 
     rows: 6
 ---
@@ -463,7 +467,7 @@ code: |
   if no_notice_of_appeal_filed:
     form_to_sign_temp.append(Notice_of_Appeal['preview'])
 
-  form_to_sign = pdf_concatenate(form_to_sign_temp, filename="motion_to_stay_general.pdf")
+  form_to_sign = pdf_concatenate(form_to_sign_temp, filename="Motion_to_Stay.pdf")
 ---
 id: review before signature
 need: form_to_sign
@@ -547,20 +551,20 @@ code: |
       waiting_screen
     if not prepped_exhibits.ok:
       try:
-        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="motion_to_stay_general.pdf")
+        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="Motion_to_Stay.pdf")
       except:
         combined_motion_temp = motion_attachment['final']
     else:      
       prepped_exhibits.set_attributes(private=False)
       if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
-        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="motion_to_stay_general.pdf")
+        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="Motion_to_Stay.pdf")
       else:
         combined_motion_temp = [motion_attachment["final"]]
   else:
     combined_motion_temp = [motion_attachment["final"]]
   #if no_notice_of_appeal_filed:
   #  combined_motion_temp.append(Notice_of_Appeal['final'])
-  combined_motion = pdf_concatenate(combined_motion_temp, filename="motion_to_stay_general.pdf")
+  combined_motion = pdf_concatenate(combined_motion_temp, filename="Motion_to_Stay.pdf")
 ---
 event: waiting_screen
 reload: True
@@ -614,6 +618,8 @@ fields:
 validation code: |
   if has_evidence and sum(exhibit.size_in_bytes() for exhibit in exhibits) > (15 * 1024 * 1024):
     validation_error("Please upload a file smaller than 15 MB.")
+  if not has_evidence and not no_record_statement: 
+    validation_error("You must select the box.")
 ---
 table: exhibits.table
 rows: exhibits

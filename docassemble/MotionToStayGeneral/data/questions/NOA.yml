@@ -36,7 +36,7 @@ code: |
   trial_court
   trial_court_docket_number
   judgment_appealing
-  judgment_date
+  trial_court_judgment_date
   noa_method_of_service
   noa_service_date
   # noa_preview_screen
@@ -110,8 +110,8 @@ fields:
   - no label: judgment_appealing
     input type: radio
     choices:
-      - A Rule 60(b) motion to reconsider: A Rule 60(b) motion to reconsider
-      - A motion to stay execution: A motion to stay execution
+      - A Rule 60(b) motion to reconsider: a Rule 60(b) motion to reconsider
+      - A motion to stay execution: a motion to stay execution
       - Other: Other
   - Other: other_judgment_appealing
     js show if: |
@@ -121,8 +121,9 @@ id: date of judgment
 question: |
   When did the court enter judgment against you?
 fields:
-  - Date: judgment_date
-    datatype: date  
+  - Date: trial_court_judgment_date
+    datatype: date
+    max: ${ today() }
 --- 
 id: method of service
 question: |
@@ -144,6 +145,7 @@ subquestion: |
 fields:
   - Date: noa_service_date
     datatype: date  
+    min: ${ today() }
 ---
 id: review before signature
 need: form_to_sign

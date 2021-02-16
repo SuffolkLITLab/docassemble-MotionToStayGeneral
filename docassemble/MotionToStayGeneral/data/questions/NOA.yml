@@ -60,16 +60,13 @@ continue button field: noa_intro
 ---
 id: plaintiff
 question: |
-  Who is the **{plaintiff}** in your Trial Court case? 
+  Who is the **plaintiff** in your Trial Court case? 
 subquestion: |
   If there is more than one plaintiff, you may enter more than one name.
 fields:
   - Plaintiff(s): plaintiff_name
     input type: area 
-    rows: 6
-terms:
-  plaintiff: |
-    This could be your landlord or the current owner of the property, such as a foreclosing bank or purchaser. 
+    rows: 6 
 --- 
 id: defendant
 question: |
@@ -105,7 +102,7 @@ fields:
 ---
 id: type of judgment
 question: |
-  What judgment are you appealing?
+  What **Trial Court** judgment are you appealing?
 fields:
   - no label: judgment_appealing
     input type: radio
@@ -117,9 +114,9 @@ fields:
     js show if: |
       val("judgment_appealing") == "Other"
 ---
-id: date of judgment
+id: date of trial court judgment
 question: |
-  When did the court enter judgment against you?
+  When did the **Trial Court** enter judgment against you?
 fields:
   - Date: trial_court_judgment_date
     datatype: date

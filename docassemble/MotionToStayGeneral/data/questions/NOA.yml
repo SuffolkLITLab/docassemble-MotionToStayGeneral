@@ -1,6 +1,7 @@
 ---
 include:
-  - docassemble.MAVirtualCourt:basic-questions.yml
+  - docassemble.AssemblyLine:al_package.yml
+  - docassemble.MassAccess:massaccess.yml
 ---
 metadata:
   title: Notice of Appeal
@@ -188,7 +189,7 @@ attachment code: Notice_of_Appeal['final']
 #  final_form_to_file = pdf_concatenate(Notice_of_Appeal)
 ---
 objects:
-  - Notice_of_Appeal: DADict
+  - Notice_of_Appeal: ALDocument.using(title='Notice of Appeal', filename='Notice_of_Appeal', has_addendum=False)
 ---
 attachment:
   - name: Notice of Appeal

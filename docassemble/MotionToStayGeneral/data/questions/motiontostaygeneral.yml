@@ -1,6 +1,7 @@
 ---
 include:
-  - docassemble.MAVirtualCourt:basic-questions.yml
+  - docassemble.AssemblyLine:al_package.yml
+  - docassemble.MassAccess:massaccess.yml
   - docassemble.AffidavitofIndigencyMAVC:affidavit_body.yml
   - NOA.yml
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
@@ -558,25 +559,53 @@ section: download
 attachment code: motion_attachment["final"]
 ---
 code: |
+  civil_docketing_statement_attachment.enabled = True
+---
+code: |
   if has_evidence:
     if not ocr_task.ready():
       waiting_screen
     if not prepped_exhibits.ok:
-      try:
-        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="motion_to_stay_general.pdf")
-      except:
-        combined_motion_temp = pdf_concatenate(motion_attachment['final'], filename="motion_to_stay_general.pdf")
+      exhibits_attachment.enabled = False
     else:      
       prepped_exhibits.set_attributes(private=False)
       if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
-        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="motion_to_stay_general.pdf")
+        exhibits_attachment.enabled = True
       else:
-        combined_motion_temp = pdf_concatenate(motion_attachment["final"], filename="motion_to_stay_general.pdf")
+        exhibits_attachment.enabled = False
   else:
-    combined_motion_temp = [motion_attachment["final"]]
-  #if no_notice_of_appeal_filed:
-  #  combined_motion_temp.append(Notice_of_Appeal['final'])
-  combined_motion = pdf_concatenate(combined_motion_temp, filename="motion_to_stay_general.pdf")
+    exhibits_attachment.enabled = False
+---
+code: |
+  affidavitofindigency_included.enabled = is_first_document and is_indigent
+---
+code: |
+  Notice_of_Appeal.enabled = no_notice_of_appeal_filed
+---
+#TODO:
+code: |
+  combined_motion = al_court_bundle.as_pdf(key='final')
+---
+#code: |
+#  if has_evidence:
+#    if not ocr_task.ready():
+#      waiting_screen
+#    if not prepped_exhibits.ok:
+#      try:
+#        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="motion_to_stay_general.pdf")
+#      except:
+#        combined_motion_temp = pdf_concatenate(motion_attachment['final'], filename="motion_to_stay_general.pdf")
+#    else:      
+#      prepped_exhibits.set_attributes(private=False)
+#      if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
+#        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="motion_to_stay_general.pdf")
+#      else:
+#        combined_motion_temp = pdf_concatenate(motion_attachment["final"], filename="motion_to_stay_general.pdf")
+#  else:
+#    combined_motion_temp = [motion_attachment["final"]]
+#  #if no_notice_of_appeal_filed:
+#  #  combined_motion_temp.append(Notice_of_Appeal['final'])
+#  combined_motion = pdf_concatenate(combined_motion_temp, filename="motion_to_stay_general.pdf")
 ---
 event: waiting_screen
 reload: True
@@ -584,7 +613,19 @@ question: |
   <i class="fas fa-cog fa-spin"></i> Please wait while we process your documents . . . <i class="fas fa-cog fa-spin"></i>
 ---
 objects:
-  - motion_attachment: DADict
+  - al_user_bundle: ALDocumentBundle.using(elements=[civil_docketing_statement_attachment, motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="example-filename.pdf", title="Example title")
+  - al_court_bundle: ALDocumentBundle.using(elements=[civil_docketing_statement_attachment, motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="example-filename.pdf", title="Example title")
+---
+objects:
+  - motion_attachment: ALDocument.using(title='Motion to Stay General', filename='Motion_to_Stay_General', has_addendum=False, enabled=True)
+  - exhibits_attachment: ALDocument.using(title='exhibits', filename='exhibits', has_addendum=False)
+  - affidavitofindigency_included: ALDocument.using(title='exhibits', filename='exhibits', has_addendum=False)
+---
+code: |
+  exhibits_attachment[i] = prepped_exhibits
+---
+code: |
+  affidavitofindigency_included[i] = affidavitofindigency_attachment
 ---
 attachment:
   - name: Motion to Stay General

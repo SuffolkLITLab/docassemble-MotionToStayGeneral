@@ -5,7 +5,6 @@ include:
   - docassemble.AffidavitofIndigencyMAVC:affidavit_body.yml
   - NOA.yml
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
-  - docassemble.AppealsCivilDocketingStatement:civil_docketing_statement.yml
 ---
 metadata:
   title: Motion to Stay General
@@ -55,10 +54,6 @@ code: |
   trial_court_judge
   date_trial_court_denied_motion_to_stay
   trial_court_denying_order_text
-  
-  # trigger civil docketing statement
-  if needs_civil_docketing_statement:
-    civil_docketing_statement_intro
   
   if no_notice_of_appeal_filed:
     noa_variables
@@ -157,11 +152,6 @@ subquestion: |
   This form cannot be directly emailed to the Supreme Judicial Court. For more information, contact the Supreme Judicial Court Clerk's office: (617) 557-1020.
   
 continue button field: info_screen
----
-id: civil docketing statement yesno
-question: |
-  Do you still need to file a Civil Docketing Statement?
-yesno: needs_civil_docketing_statement
 ---
 objects:
   - users: PeopleList.using(there_are_any=True)
@@ -460,8 +450,8 @@ fields:
     rows: 6
 ---
 code: |
-  if is_first_document and is_indigent and needs_civil_docketing_statement:
-    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment, civil_docketing_statement_attachment]
+  if is_first_document and is_indigent:
+    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
   elif is_first_document and is_indigent:
     final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
   else:
@@ -481,9 +471,6 @@ code: |
   if no_notice_of_appeal_filed:
     form_to_sign_temp.append(Notice_of_Appeal['preview'])
 
-  if needs_civil_docketing_statement:
-    form_to_sign_temp.append(civil_docketing_statement_attachment['preview'])
-    
   form_to_sign = pdf_concatenate(form_to_sign_temp, filename="Motion_to_Stay.pdf")
 ---
 id: review before signature
@@ -563,9 +550,6 @@ section: download
 attachment code: motion_attachment["final"]
 ---
 code: |
-  civil_docketing_statement_attachment.enabled = True
----
-code: |
   if has_evidence:
     if not ocr_task.ready():
       waiting_screen
@@ -617,8 +601,8 @@ question: |
   <i class="fas fa-cog fa-spin"></i> Please wait while we process your documents . . . <i class="fas fa-cog fa-spin"></i>
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[civil_docketing_statement_attachment, motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="example-filename.pdf", title="Example title")
-  - al_court_bundle: ALDocumentBundle.using(elements=[civil_docketing_statement_attachment, motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="example-filename.pdf", title="Example title")
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="example-filename.pdf", title="Example title")
+  - al_court_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="example-filename.pdf", title="Example title")
 ---
 objects:
   - motion_attachment: ALDocument.using(title='Motion to Stay General', filename='Motion_to_Stay_General', has_addendum=False, enabled=True)

@@ -37,7 +37,7 @@ code: |
   trial_court
   trial_court_docket_number
   judgment_appealing
-  judgment_date
+  trial_court_judgment_date
   noa_method_of_service
   noa_service_date
   # noa_preview_screen
@@ -118,11 +118,11 @@ fields:
     js show if: |
       val("judgment_appealing") == "Other"
 ---
-id: date of judgment
+id: date of trial court judgment
 question: |
-  When did the court enter judgment against you?
+  When did the **Trial Court** enter judgment against you?
 fields:
-  - Date: judgment_date
+  - Date: trial_court_judgment_date
     datatype: date  
 --- 
 id: method of service

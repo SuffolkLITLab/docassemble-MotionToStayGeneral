@@ -9,6 +9,34 @@ include:
 metadata:
   title: Motion to Stay General
 ---
+comment: |
+  This section is used by AssemblyLine to control how some of the questions work.
+mandatory: True
+code: |
+  interview_metadata # make sure we initialize the object
+  if not defined("interview_metadata['Motion_To_Stay_General']"):
+    interview_metadata.initializeObject('Motion_To_Stay_General')
+  interview_metadata['Motion_To_Stay_General'].update({
+    'title': 'Motion To Stay General',
+    'short title': 'Motion To Stay General',
+    'description': 'Motion To Stay General',
+    'original_form': '',
+    'allowed courts': [
+      "Boston Municipal Court",
+      "District Court",
+      "Superior Court",
+      "Housing Court",
+      "Probate and Family Court",
+      "Juvenile Court",
+      "Land Court"
+    ],
+    'categories': [
+    ],
+    'logic block variable': 'Motion_To_Stay_General',
+    'attachment block variable': 'al_court_bundle',
+    'typical role': 'unknown',
+  })
+---
 features:
   javascript:
     - limit_upload_size.js
@@ -448,17 +476,17 @@ fields:
   - no label: argument_summary
     input type: area 
     rows: 6
----
-code: |
-  if is_first_document and is_indigent:
-    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
-  elif is_first_document and is_indigent:
-    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
-  else:
-    final_form_to_file = [general_cover_sheet, combined_motion]
----
-code: |
-  form_to_file_no_cover = combined_motion
+#---
+#code: |
+#  if is_first_document and is_indigent:
+#    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
+#  elif is_first_document and is_indigent:
+#    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
+#  else:
+#    final_form_to_file = [general_cover_sheet, combined_motion]
+#---
+#code: |
+#  form_to_file_no_cover = combined_motion
 ---
 code: |
   form_to_sign_temp = []
@@ -526,15 +554,13 @@ subquestion: |
   8:30am - 4:30pm
   % endif
   
-  ${ form_to_file_no_cover }  
-  
   % if not defined('email_success') or not email_success:
     ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
     
   Or download/email below:
   % else:
     Your email has already been delivered to ${courts[0]}
-
+    
   % for file in final_form_to_file:
   % if hasattr(file, 'info'):
   * [:file-download: ${ file.info.get("filename") }](${file.url_for()})
@@ -545,9 +571,13 @@ subquestion: |
   % endif
   % endfor 
   % endif
+  
+  ${ al_user_bundle.download_list_html() }
+  
+  ${ al_user_bundle.send_button_html() }
+
 progress: 100
 section: download
-attachment code: motion_attachment["final"]
 ---
 code: |
   if has_evidence:
@@ -601,13 +631,13 @@ question: |
   <i class="fas fa-cog fa-spin"></i> Please wait while we process your documents . . . <i class="fas fa-cog fa-spin"></i>
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="example-filename.pdf", title="Example title")
-  - al_court_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="example-filename.pdf", title="Example title")
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="Motion_to_Stay", title="Motion to Stay")
+  - al_court_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included], filename="Motion_to_Stay", title="Motion to Stay")
 ---
 objects:
   - motion_attachment: ALDocument.using(title='Motion to Stay General', filename='Motion_to_Stay_General', has_addendum=False, enabled=True)
-  - exhibits_attachment: ALDocument.using(title='exhibits', filename='exhibits', has_addendum=False)
-  - affidavitofindigency_included: ALDocument.using(title='exhibits', filename='exhibits', has_addendum=False)
+  - exhibits_attachment: ALDocument.using(title='Exhibits', filename='exhibits', has_addendum=False)
+  - affidavitofindigency_included: ALDocument.using(title='Affidavit of Indigency', filename='Affidavit_of_Indigency', has_addendum=False)
 ---
 code: |
   exhibits_attachment[i] = prepped_exhibits

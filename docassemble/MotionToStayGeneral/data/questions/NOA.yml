@@ -122,7 +122,7 @@ fields:
   - Date: trial_court_judgment_date
     datatype: date
     max: ${ today() }
---- 
+---
 id: method of service
 question: |
   How will you deliver the required copies of your Notice of Appeal to ${ other_parties }'s attorney(s)?

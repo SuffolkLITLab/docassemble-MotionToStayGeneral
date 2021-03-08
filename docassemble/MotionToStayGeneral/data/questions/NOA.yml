@@ -51,11 +51,11 @@ objects:
 ---
 id: noa intro
 question: | 
-  You need to file a Notice of Appeal in the ${ trial_court }.
+  You need to file a Notice of Appeal in the **${ trial_court }**.
 subquestion: | 
   **Failure to file a Notice of Appeal in the ${ trial_court } may result in your Motion to Stay being denied.**
   
-  This short online form will help you fill out a Notice of Appeal.
+  The next few questions will help you fill out a Notice of Appeal and then return to the Motion to Stay questions. 
   
 continue button field: noa_intro
 ---
@@ -171,7 +171,7 @@ subquestion: |
   
   You are required to provide a copy of your Notice of Appeal to the plaintiffs' attorney(s).
   
-  You must submit a copy of your Notice of Appeal to ${ trial_court }.
+  You must submit a copy of your Notice of Appeal to **${ trial_court }**.
   
   Below is a preview of your form.
   

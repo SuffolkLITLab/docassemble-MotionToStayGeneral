@@ -137,9 +137,9 @@ question: |
 subquestion: |
   ${ pdf_concatenate(Notice_of_Appeal['preview']) }
   
-  You will have a chance to add your signature to this document and download it at the end of this interview.
+  You will have a chance to add your signature to this document and download it with your Motion to Stay at the end of this interview.
   
-  Failure to file a Notice of Appeal in the ${ trial_court } may result in your Motion to Stay being denied.
+  Failure to file a Notice of Appeal in the **${ trial_court }** may result in your Motion to Stay being denied.
 continue button field: noa_confirmation
 ---
 need: prepped_exhibits
@@ -280,7 +280,7 @@ subquestion: |
   
   [${Notice.show(width='28em')}](${Notice.url_for()})
   
-    If you have not filed a Notice of Appeal in the ${ trial_court }, you will be directed to do so if you select "I did not file a Notice of Appeal."
+    If you have not filed a Notice of Appeal in the **${ trial_court }**, you will be directed to do so if you select "I did not file a Notice of Appeal."
 fields:
   - I did not file a Notice of Appeal: no_notice_of_appeal_filed
     datatype: yesno
@@ -295,9 +295,9 @@ id: date trial court denied motion to stay
 question: |  
   When did the **Trial Court** judge deny your Motion to Stay?
 subquestion: |
-  Before using this form, you must first ask for a Stay in the ${ trial_court }.
+  Before using this form, you must first ask for a Stay in the **${ trial_court }**.
   
-  For more information, call the Trial Court’s Emergency HelpLine: 833-91-COURT (833-912-6878) open Monday - Friday from 8:30 am - 4:30 pm. 
+  For more information, call the Trial Court’s Emergency Help Line: 833-91-COURT (833-912-6878) open Monday - Friday from 8:30 am - 4:30 pm. 
     
 fields:
   - Date: date_trial_court_denied_motion_to_stay
@@ -558,15 +558,9 @@ subquestion: |
   % else:
     Your email has already been delivered to ${courts[0]}
     
-  % for file in final_form_to_file:
-  % if hasattr(file, 'info'):
-  * [:file-download: ${ file.info.get("filename") }](${file.url_for()})
-  % elif hasattr(file, 'file_info'):
-  * [:file-download: ${ file.file_info.get("filename") }](${file.url_for()})
-  % else:
-  * [:file-download: ${ str(file) }](${file.url_for()})
-  % endif
-  % endfor 
+  ${ final_form_to_file } 
+  [:file-download: Download this form with cover page](${final_form_to_file.url_for(attachment=True)})
+ 
   % endif
   
   ${ al_user_bundle.download_list_html() }

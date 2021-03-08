@@ -6,6 +6,14 @@ include:
   - NOA.yml
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
 ---
+reconsider: True
+code: |
+  form_to_file_no_cover = al_court_bundle.as_pdf(key = "final")
+---
+reconsider: True
+code: |
+  form_to_sign = al_court_bundle.as_pdf(key = "preview")
+---
 metadata:
   title: Motion to Stay General
 ---
@@ -485,18 +493,21 @@ fields:
 #code: |
 #  form_to_file_no_cover = combined_motion
 ---
-code: |
-  form_to_sign_temp = []
-  #if has_evidence:
-  #  form_to_sign_temp = [motion_attachment["preview"], exhibits]
-  #else:
-  #  form_to_sign_temp = [motion_attachment["preview"]]
-  # Dont need to show them the exhibits again--it can be slow w/ big addendum
-  form_to_sign_temp = [motion_attachment["preview"]]
-  if no_notice_of_appeal_filed:
-    form_to_sign_temp.append(Notice_of_Appeal['preview'])
-  
-  form_to_sign = pdf_concatenate(form_to_sign_temp, filename="motion_to_stay_general.pdf")
+#code: |
+#  form_to_sign_temp = []
+#  #if has_evidence:
+#  #  form_to_sign_temp = [motion_attachment["preview"], exhibits]
+#  #else:
+#  #  form_to_sign_temp = [motion_attachment["preview"]]
+#  # Dont need to show them the exhibits again--it can be slow w/ big addendum
+#  form_to_sign_temp = [motion_attachment["preview"]]
+#  if no_notice_of_appeal_filed:
+#    form_to_sign_temp.append(Notice_of_Appeal['preview'])
+#  
+#  form_to_sign = pdf_concatenate(form_to_sign_temp, filename="motion_to_stay_general.pdf")
+#---
+#  form_to_file_no_cover = al_court_bundle.as_pdf(key = "final")
+#  form_to_sign = al_court_bundle.as_pdf(key = "preview")
 ---
 id: review before signature
 need: form_to_sign
@@ -544,6 +555,12 @@ subquestion: |
   1. Click "Submit to ${courts[0]}" to send it to the court. 
   1. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
   % else:
+  
+  % if no_notice_of_appeal_filed:
+  You must deliver the [:file-download: Notice of Appeal]( ${ Notice_of_Appeal['final'].pdf.url_for()} ) to the **${ trial_court }** on your own. 
+  Call the ${ trial_court } at ${ trial_court.phone } to find out how.
+  % endif
+  
   If you do not hear from the court in 1 business day, call the   Appeals Court Clerk's Office: 617-921-4443 
   
   The Appeals Court Clerk's Office is open:  

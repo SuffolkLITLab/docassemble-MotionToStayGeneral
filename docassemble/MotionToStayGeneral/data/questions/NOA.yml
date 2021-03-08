@@ -6,6 +6,34 @@ include:
 metadata:
   title: Notice of Appeal
 ---
+comment: |
+  This section is used by AssemblyLine to control how some of the questions work.
+mandatory: True
+code: |
+  interview_metadata # make sure we initialize the object
+  if not defined("interview_metadata['Notice_of_Appeal']"):
+    interview_metadata.initializeObject('Notice_of_Appeal')
+  interview_metadata['Notice_of_Appeal'].update({
+    'title': 'Notice of Appeal',
+    'short title': 'Notice of Appeal',
+    'description': 'Notice of Appeal',
+    'original_form': '',
+    'allowed courts': [
+      "Boston Municipal Court",
+      "District Court",
+      "Superior Court",
+      "Housing Court",
+      "Probate and Family Court",
+      "Juvenile Court",
+      "Land Court"
+    ],
+    'categories': [
+    ],
+    'logic block variable': 'Notice_of_Appeal',
+    'attachment block variable': 'al_court_bundle',
+    'typical role': 'unknown',
+  })
+---
 code: |
   interview_short_title = "Ask for a Notice of Appeal"
 ---

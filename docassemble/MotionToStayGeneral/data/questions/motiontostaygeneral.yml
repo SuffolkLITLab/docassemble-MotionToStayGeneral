@@ -519,7 +519,7 @@ subquestion: |
   
   Do not forget to come back to this page to click to the final step of signing and sending the form to the court. 
   
-   ${ form_to_sign }
+   [:file-download: Your Appeal]( ${ al_court_bundle.as_pdf(key='preview').url_for() } )
 
 progress: 95
 ---
@@ -534,26 +534,25 @@ question: |
   % endif
 subquestion: |
   % if not defined('email_success') or not email_success:
-  Thank you ${users[0]}. Your form is ready to send to the court. **It is not
-  delivered until you complete the delivery process below.**
+  Your form is ready to send to the ${ courts[0] }. It is not delivered until you complete the delivery process.
   
   % if no_notice_of_appeal_filed:
   **You have two documents to deliver:** 
   
   1. The [:file-download: Notice of Appeal]( ${ Notice_of_Appeal['final'].pdf.url_for()} ),
-  which needs to be delivered to the **${ trial_court }**. You need to deliver
+  which needs to be delivered to the **${ trial_court }**. You must deliver
   this on your own. Call the ${ trial_court } at ${ trial_court.phone }
   to find out how.
-  2. Your Appeal, which needs to be delivered to ${ courts[0] }. You can deliver the appeal by following the steps below.
+  2. [:file-download: Your Appeal]( ${ al_court_bundle.as_pdf(key='final').url_for() } ), which needs to be delivered to the ${ courts[0] }. You can deliver it below.
   
-  Follow these steps to deliver the Appeal to the ${ courts[0] }:
+  **To deliver your Appeal to the ${ courts[0] }:**
   % endif
   
-  1. Click the preview image below to open the form in a new window.
-  1. Download and save or print a copy of this form for your 
-  records.
-  1. Click "Submit to ${courts[0]}" to send it to the court. 
-  1. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
+  1. Click "View" below to open the form in a new window.
+  1. Click "Download" below to save or print a copy for your records.
+  1. Click "Submit to ${courts[0]}" to send your Appeal to the ${courts[0]}. 
+
+  You will have a chance to add instructions to the clerk and see the cover page before final delivery.
   % else:
   
   % if no_notice_of_appeal_filed:
@@ -561,7 +560,7 @@ subquestion: |
   Call the ${ trial_court } at ${ trial_court.phone } to find out how.
   % endif
   
-  If you do not hear from the court in 1 business day, call the   Appeals Court Clerk's Office: 617-921-4443 
+  If you do not hear from the court in 1 business day, call the Appeals Court Clerk's Office: 617-921-4443 
   
   The Appeals Court Clerk's Office is open:  
   Monday - Friday  
@@ -571,12 +570,10 @@ subquestion: |
   % if not defined('email_success') or not email_success:
     ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
     
-  Or download/email below:
   % else:
-    Your email has already been delivered to ${courts[0]}
+    Your email has already been delivered to ${courts[0]}.
     
-  ${ final_form_to_file } 
-  [:file-download: Download this form with cover page](${final_form_to_file.url_for(attachment=True)})
+  [:file-download: Your Appeal](${final_form_to_file.url_for(attachment=True)})
  
   % endif
   

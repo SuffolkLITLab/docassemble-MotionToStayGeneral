@@ -56,7 +56,7 @@ code: |
   interview_short_title = "Ask the Appeals Court for a Motion to Stay"
 ---
 objects:
-  - prepped_exhibits: DAFile.using(filename='exhibits.pdf')
+  - prepping_exhibits: DAFile.using(filename='exhibits.pdf')
 ---
 id: interview order
 mandatory: True
@@ -150,29 +150,29 @@ subquestion: |
   Failure to file a Notice of Appeal in the **${ trial_court }** may result in your Motion to Stay being denied.
 continue button field: noa_confirmation
 ---
-need: prepped_exhibits
+need: prepping_exhibits
 code: |
   ocr_task = background_action('process_exhibits')
 ---
 event: process_exhibits
 code: |
-  prepped_exhibits.initialize(filename="exhibits.pdf")
-  prepped_exhibits.make_ocr_pdf(exhibits, psm=1)
-  prepped_exhibits.bates_number(prefix='EX-')
-  background_response_action('save_results',results=prepped_exhibits)
+  prepping_exhibits.initialize(filename="exhibits.pdf")
+  prepping_exhibits.make_ocr_pdf(exhibits, psm=1)
+  prepping_exhibits.bates_number(prefix='EX-')
+  background_response_action('save_results',results=prepping_exhibits)
 ---
 event: save_results
 code: |
   prepped_exhibits = action_argument('results')
   background_response()
---- 
+---
 id: info screen
 question: |
   Motion to Stay
-subquestion: | 
+subquestion: |
   Before using this form, you must ask for a Stay in the Trial Court.
     
-  If you have not already done so, you can use this form to download a Notice of Appeal and file a Waiver of Appeal Bond. 
+  If you have not already done so, you can use this form to download a Notice of Appeal and file a Waiver of Appeal Bond.
   
   To use this form, you will need relevant Trial Court documents, including:
   
@@ -612,27 +612,6 @@ code: |
 #TODO:
 code: |
   combined_motion = al_court_bundle.as_pdf(key='final')
----
-#code: |
-#  if has_evidence:
-#    if not ocr_task.ready():
-#      waiting_screen
-#    if not prepped_exhibits.ok:
-#      try:
-#        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="motion_to_stay_general.pdf")
-#      except:
-#        combined_motion_temp = pdf_concatenate(motion_attachment['final'], filename="motion_to_stay_general.pdf")
-#    else:      
-#      prepped_exhibits.set_attributes(private=False)
-#      if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
-#        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="motion_to_stay_general.pdf")
-#      else:
-#        combined_motion_temp = pdf_concatenate(motion_attachment["final"], filename="motion_to_stay_general.pdf")
-#  else:
-#    combined_motion_temp = [motion_attachment["final"]]
-#  #if no_notice_of_appeal_filed:
-#  #  combined_motion_temp.append(Notice_of_Appeal['final'])
-#  combined_motion = pdf_concatenate(combined_motion_temp, filename="motion_to_stay_general.pdf")
 ---
 event: waiting_screen
 reload: True

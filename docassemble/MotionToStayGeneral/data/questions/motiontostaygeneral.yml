@@ -267,7 +267,7 @@ fields:
 ---
 id: date notice of appeal filed
 question: |  
-  When did you file a Notice of Appeal in the **${ trial_court }**?
+  When did you file a Notice of Appeal in the ${ trial_court }?
 subquestion: |
   **Before asking for a Motion to Stay, you must first file a Notice of Appeal in the ${ trial_court }.**
   
@@ -350,7 +350,7 @@ question: |
 subquestion: |
   You are required to provide a copy of this motion, memorandum, and supporting materials to ${ other_parties }'s attorney(s).
   
-  If the plaintiff does not have an attorney, you are required to serve a copy on the self-represented plaintiff.  
+  If ${ other_parties } does not have an attorney, you are required to serve a copy on ${ other_parties }.  
   
   You should not provide a copy of your Affidavit of Indigency, if any, to anyone except the Appeals Court.  
 field: method_of_service
@@ -427,7 +427,7 @@ fields:
     input type: area 
     rows: 6
 ---
-id: harm suffered by defendant 
+id: user harm suffered
 question: |
   What harm will **you or your dependents** suffer if your Motion to Stay is denied?
 subquestion: |
@@ -439,9 +439,9 @@ fields:
 ---
 id: harm suffered by other party 
 question: |
-  What harm will the **other party** suffer if your Motion to Stay is granted?
+  What harm will **${ other_parties }** suffer if your Motion to Stay is granted?
 subquestion: |
-  Your Motion to Stay must show that the other party will not be harmed more than you or your dependents if your motion is granted.
+  Your Motion to Stay must show that ${ other_parties } will not be harmed more than you or your dependents if your Motion to Stay is granted.
 fields:
   - no label: other_party_harm
     input type: area 
@@ -603,7 +603,7 @@ objects:
 ---
 id: record appendix
 question: |
-  You are required to submit copies of relevant Trial Court documents. 
+  You are required to submit copies of relevant **Trial Court** documents. 
 subquestion: |  
   Examples include: 
   

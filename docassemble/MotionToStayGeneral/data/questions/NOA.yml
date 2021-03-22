@@ -79,7 +79,7 @@ objects:
 ---
 id: noa intro
 question: | 
-  You need to file a Notice of Appeal in the **${ trial_court }**.
+  You must file a Notice of Appeal in the ${ trial_court }.
 subquestion: | 
   **Failure to file a Notice of Appeal in the ${ trial_court } may result in your Motion to Stay being denied.**
   
@@ -153,7 +153,7 @@ fields:
 ---
 id: method of service
 question: |
-  How will you deliver the required copies of your Notice of Appeal to ${ other_parties }'s attorney(s)?
+  How will you deliver the required copies of your **Notice of Appeal** to ${ other_parties }'s attorney(s)?
 subquestion: |  
   You are required to provide a copy of your Notice of Appeal to ${ other_parties }'s attorney(s).  
 field: noa_method_of_service
@@ -165,7 +165,7 @@ dropdown:
 ---
 id: service date
 question: |
-  When will you deliver copies of your Notice of Appeal to ${ other_parties }'s attorney(s)?
+  When will you deliver copies of your **Notice of Appeal** to ${ other_parties }'s attorney(s)?
 subquestion: |
   You are required to provide a copy of your Notice of Appeal to ${ other_parties }'s attorney(s).
 fields:

@@ -1,12 +1,49 @@
 ---
 include:
-  - docassemble.MAVirtualCourt:basic-questions.yml
+  - docassemble.AssemblyLine:al_package.yml
+  - docassemble.MassAccess:massaccess.yml
   - docassemble.AffidavitofIndigencyMAVC:affidavit_body.yml
   - NOA.yml
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
 ---
+reconsider: True
+code: |
+  form_to_file_no_cover = al_court_bundle.as_pdf(key = "final")
+---
+reconsider: True
+code: |
+  form_to_sign = al_court_bundle.as_pdf(key = "preview")
+---
 metadata:
   title: Motion to Stay General
+---
+comment: |
+  This section is used by AssemblyLine to control how some of the questions work.
+mandatory: True
+code: |
+  interview_metadata # make sure we initialize the object
+  if not defined("interview_metadata['Motion_To_Stay_General']"):
+    interview_metadata.initializeObject('Motion_To_Stay_General')
+  interview_metadata['Motion_To_Stay_General'].update({
+    'title': 'Motion To Stay General',
+    'short title': 'Motion To Stay General',
+    'description': 'Motion To Stay General',
+    'original_form': '',
+    'allowed courts': [
+      "Boston Municipal Court",
+      "District Court",
+      "Superior Court",
+      "Housing Court",
+      "Probate and Family Court",
+      "Juvenile Court",
+      "Land Court"
+    ],
+    'categories': [
+    ],
+    'logic block variable': 'Motion_To_Stay_General',
+    'attachment block variable': 'al_court_bundle',
+    'typical role': 'unknown',
+  })
 ---
 features:
   javascript:
@@ -19,7 +56,7 @@ code: |
   interview_short_title = "Ask the Appeals Court for a Motion to Stay"
 ---
 objects:
-  - prepped_exhibits: DAFile.using(filename='exhibits.pdf')
+  - prepping_exhibits: DAFile.using(filename='exhibits.pdf')
 ---
 id: interview order
 mandatory: True
@@ -46,6 +83,7 @@ code: |
   #other_parties[0].name.first = plaintiff_name
   #other_parties.gathered=True
   
+  
   #defendant_name
   trial_court
   trial_court_docket_number
@@ -53,6 +91,7 @@ code: |
   trial_court_judge
   date_trial_court_denied_motion_to_stay
   trial_court_denying_order_text
+  
   if no_notice_of_appeal_filed:
     noa_variables
     noa_confirmation
@@ -106,36 +145,36 @@ question: |
 subquestion: |
   ${ pdf_concatenate(Notice_of_Appeal['preview']) }
   
-  You will have a chance to add your signature to this document and download it at the end of this interview.
+  You will have a chance to add your signature to this document and download it with your Motion to Stay at the end of this interview.
   
-  Failure to file a Notice of Appeal in the ${ trial_court } may result in your Motion to Stay being denied.
+  Failure to file a Notice of Appeal in the **${ trial_court }** may result in your Motion to Stay being denied.
 continue button field: noa_confirmation
 ---
-need: prepped_exhibits
+need: prepping_exhibits
 code: |
   ocr_task = background_action('process_exhibits')
 ---
 event: process_exhibits
 code: |
-  prepped_exhibits.initialize(filename="exhibits.pdf")
-  prepped_exhibits.make_ocr_pdf(exhibits, psm=1)
-  prepped_exhibits.bates_number(prefix='EX-')
-  background_response_action('save_results',results=prepped_exhibits)
+  prepping_exhibits.initialize(filename="exhibits.pdf")
+  prepping_exhibits.make_ocr_pdf(exhibits, psm=1)
+  prepping_exhibits.bates_number(prefix='EX-')
+  background_response_action('save_results',results=prepping_exhibits)
 ---
 event: save_results
 code: |
   prepped_exhibits = action_argument('results')
   background_response()
---- 
+---
 id: info screen
 question: |
   Motion to Stay
-subquestion: | 
+subquestion: |
   Before using this form, you must ask for a Stay in the Trial Court.
     
-  If you have not already done so, you can use this form to download a Notice of Appeal and file a Waiver of Appeal Bond. 
+  If you have not already done so, you can use this form to download a Notice of Appeal and file a Waiver of Appeal Bond.
   
-  To use this form, you will need relevant Trial Court documents including:
+  To use this form, you will need relevant Trial Court documents, including:
   
     * the Trial Court's docket
     
@@ -250,7 +289,7 @@ subquestion: |
   
   [${Notice.show(width='28em')}](${Notice.url_for()})
   
-    If you have not filed a Notice of Appeal in the ${ trial_court }, you will be directed to do so if you select "I did not file a Notice of Appeal."
+    If you have not filed a Notice of Appeal in the **${ trial_court }**, you will be directed to do so if you select "I did not file a Notice of Appeal."
 fields:
   - I did not file a Notice of Appeal: no_notice_of_appeal_filed
     datatype: yesno
@@ -266,9 +305,9 @@ id: date trial court denied motion to stay
 question: |  
   When did the **Trial Court** judge deny your Motion to Stay?
 subquestion: |
-  Before using this form, you must first ask for a Stay in the ${ trial_court }.
+  Before using this form, you must first ask for a Stay in the **${ trial_court }**.
   
-  For more information, call the Trial Court’s Emergency HelpLine: 833-91-COURT (833-912-6878) open Monday - Friday from 8:30 am - 4:30 pm. 
+  For more information, call the Trial Court’s Emergency Help Line: 833-91-COURT (833-912-6878) open Monday - Friday from 8:30 am - 4:30 pm. 
     
 fields:
   - Date: date_trial_court_denied_motion_to_stay
@@ -446,28 +485,33 @@ fields:
   - no label: argument_summary
     input type: area 
     rows: 6
+#---
+#code: |
+#  if is_first_document and is_indigent:
+#    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
+#  elif is_first_document and is_indigent:
+#    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
+#  else:
+#    final_form_to_file = [general_cover_sheet, combined_motion]
+#---
+#code: |
+#  form_to_file_no_cover = combined_motion
 ---
-code: |
-  if is_first_document and is_indigent:
-    final_form_to_file = [general_cover_sheet, combined_motion, affidavitofindigency_attachment]
-  else:
-    final_form_to_file = [general_cover_sheet, combined_motion ]
----
-code: |
-  form_to_file_no_cover = combined_motion
----
-code: |
-  form_to_sign_temp = []
-  #if has_evidence:
-  #  form_to_sign_temp = [motion_attachment["preview"], exhibits]
-  #else:
-  #  form_to_sign_temp = [motion_attachment["preview"]]
-  # Dont need to show them the exhibits again--it can be slow w/ big addendum
-  form_to_sign_temp = [motion_attachment["preview"]]
-  if no_notice_of_appeal_filed:
-    form_to_sign_temp.append(Notice_of_Appeal['preview'])
-
-  form_to_sign = pdf_concatenate(form_to_sign_temp, filename="Motion_to_Stay.pdf")
+#code: |
+#  form_to_sign_temp = []
+#  #if has_evidence:
+#  #  form_to_sign_temp = [motion_attachment["preview"], exhibits]
+#  #else:
+#  #  form_to_sign_temp = [motion_attachment["preview"]]
+#  # Dont need to show them the exhibits again--it can be slow w/ big addendum
+#  form_to_sign_temp = [motion_attachment["preview"]]
+#  if no_notice_of_appeal_filed:
+#    form_to_sign_temp.append(Notice_of_Appeal['preview'])
+#  
+#  form_to_sign = pdf_concatenate(form_to_sign_temp, filename="motion_to_stay_general.pdf")
+#---
+#  form_to_file_no_cover = al_court_bundle.as_pdf(key = "final")
+#  form_to_sign = al_court_bundle.as_pdf(key = "preview")
 ---
 id: review before signature
 need: form_to_sign
@@ -479,7 +523,7 @@ subquestion: |
   
   Do not forget to come back to this page to click to the final step of signing and sending the form to the court. 
   
-   ${ form_to_sign }
+   [:file-download: Your Appeal]( ${ al_court_bundle.as_pdf(key='preview').url_for() } )
 
 progress: 95
 ---
@@ -494,77 +538,80 @@ question: |
   % endif
 subquestion: |
   % if not defined('email_success') or not email_success:
-  Thank you ${users[0]}. Your form is ready to send to the court. **It is not
-  delivered until you complete the delivery process below.**
+  Your form is ready to send to the ${ courts[0] }. It is not delivered until you complete the delivery process.
   
   % if no_notice_of_appeal_filed:
   **You have two documents to deliver:** 
   
   1. The [:file-download: Notice of Appeal]( ${ Notice_of_Appeal['final'].pdf.url_for()} ),
-  which needs to be delivered to the **${ trial_court }**. You need to deliver
+  which needs to be delivered to the **${ trial_court }**. You must deliver
   this on your own. Call the ${ trial_court } at ${ trial_court.phone }
   to find out how.
-  2. Your Appeal, which needs to be delivered to ${ courts[0] }. You can deliver the appeal by following the steps below.
+  2. [:file-download: Your Appeal]( ${ al_court_bundle.as_pdf(key='final').url_for() } ), which needs to be delivered to the ${ courts[0] }. You can deliver it below.
   
-  Follow these steps to deliver the Appeal to the ${ courts[0] }:
+  **To deliver your Appeal to the ${ courts[0] }:**
   % endif
   
-  1. Click the preview image below to open the form in a new window.
-  1. Download and save or print a copy of this form for your 
-  records.
-  1. Click "Submit to ${courts[0]}" to send it to the court. 
-  1. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
+  1. Click "View" below to open the form in a new window.
+  1. Click "Download" below to save or print a copy for your records.
+  1. Click "Submit to ${courts[0]}" to send your Appeal to the ${courts[0]}. 
+
+  You will have a chance to add instructions to the clerk and see the cover page before final delivery.
   % else:
-  If you do not hear from the court in 1 business day, call the   Appeals Court Clerk's Office: 617-921-4443 
+  
+  % if no_notice_of_appeal_filed:
+  You must deliver the [:file-download: Notice of Appeal]( ${ Notice_of_Appeal['final'].pdf.url_for()} ) to the **${ trial_court }** on your own. 
+  Call the ${ trial_court } at ${ trial_court.phone } to find out how.
+  % endif
+  
+  If you do not hear from the court in 1 business day, call the Appeals Court Clerk's Office: 617-921-4443 
   
   The Appeals Court Clerk's Office is open:  
   Monday - Friday  
   8:30am - 4:30pm
   % endif
   
-  ${ form_to_file_no_cover }  
-  
   % if not defined('email_success') or not email_success:
     ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
     
-  Or download/email below:
   % else:
-    Your email has already been delivered to ${courts[0]}
+    Your email has already been delivered to ${courts[0]}.
+    
+  [:file-download: Your Appeal](${final_form_to_file.url_for(attachment=True)})
+ 
+  % endif
+  
+  ${ al_user_bundle.download_list_html() }
+  
+  ${ al_user_bundle.send_button_html() }
 
-  % for file in final_form_to_file:
-  % if hasattr(file, 'info'):
-  * [:file-download: ${ file.info.get("filename") }](${file.url_for()})
-  % elif hasattr(file, 'file_info'):
-  * [:file-download: ${ file.file_info.get("filename") }](${file.url_for()})
-  % else:
-  * [:file-download: ${ str(file) }](${file.url_for()})
-  % endif
-  % endfor 
-  % endif
 progress: 100
 section: download
-attachment code: motion_attachment["final"]
 ---
 code: |
   if has_evidence:
     if not ocr_task.ready():
       waiting_screen
     if not prepped_exhibits.ok:
-      try:
-        combined_motion_temp = pdf_concatenate(motion_attachment['final'], exhibits, filename="Motion_to_Stay.pdf")
-      except:
-        combined_motion_temp = motion_attachment['final']
+      exhibits_attachment.enabled = False
     else:      
       prepped_exhibits.set_attributes(private=False)
       if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
-        combined_motion_temp = pdf_concatenate(motion_attachment["final"], prepped_exhibits, filename="Motion_to_Stay.pdf")
+        exhibits_attachment.enabled = True
       else:
-        combined_motion_temp = [motion_attachment["final"]]
+        exhibits_attachment.enabled = False
   else:
-    combined_motion_temp = [motion_attachment["final"]]
-  #if no_notice_of_appeal_filed:
-  #  combined_motion_temp.append(Notice_of_Appeal['final'])
-  combined_motion = pdf_concatenate(combined_motion_temp, filename="Motion_to_Stay.pdf")
+    exhibits_attachment.enabled = False
+---
+code: |
+  affidavitofindigency_included.enabled = is_first_document and is_indigent
+---
+code: |
+  Notice_of_Appeal.enabled = no_notice_of_appeal_filed
+---
+#TODO:
+code: |
+  combined_motion = al_court_bundle.as_pdf(key='final')
 ---
 event: waiting_screen
 reload: True
@@ -572,7 +619,19 @@ question: |
   <i class="fas fa-cog fa-spin"></i> Please wait while we process your documents . . . <i class="fas fa-cog fa-spin"></i>
 ---
 objects:
-  - motion_attachment: DADict
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="Motion_to_Stay", title="Motion to Stay")
+  - al_court_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included], filename="Motion_to_Stay", title="Motion to Stay")
+---
+objects:
+  - motion_attachment: ALDocument.using(title='Motion to Stay General', filename='Motion_to_Stay_General', has_addendum=False, enabled=True)
+  - exhibits_attachment: ALDocument.using(title='Exhibits', filename='exhibits', has_addendum=False)
+  - affidavitofindigency_included: ALDocument.using(title='Affidavit of Indigency', filename='Affidavit_of_Indigency', has_addendum=False)
+---
+code: |
+  exhibits_attachment[i] = prepped_exhibits
+---
+code: |
+  affidavitofindigency_included[i] = affidavitofindigency_attachment
 ---
 attachment:
   - name: Motion to Stay General

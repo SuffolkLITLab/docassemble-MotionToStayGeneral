@@ -1,9 +1,38 @@
 ---
 include:
-  - docassemble.MAVirtualCourt:basic-questions.yml
+  - docassemble.AssemblyLine:al_package.yml
+  - docassemble.MassAccess:massaccess.yml
 ---
 metadata:
   title: Notice of Appeal
+---
+comment: |
+  This section is used by AssemblyLine to control how some of the questions work.
+mandatory: True
+code: |
+  interview_metadata # make sure we initialize the object
+  if not defined("interview_metadata['Notice_of_Appeal']"):
+    interview_metadata.initializeObject('Notice_of_Appeal')
+  interview_metadata['Notice_of_Appeal'].update({
+    'title': 'Notice of Appeal',
+    'short title': 'Notice of Appeal',
+    'description': 'Notice of Appeal',
+    'original_form': '',
+    'allowed courts': [
+      "Boston Municipal Court",
+      "District Court",
+      "Superior Court",
+      "Housing Court",
+      "Probate and Family Court",
+      "Juvenile Court",
+      "Land Court"
+    ],
+    'categories': [
+    ],
+    'logic block variable': 'Notice_of_Appeal',
+    'attachment block variable': 'al_court_bundle',
+    'typical role': 'unknown',
+  })
 ---
 code: |
   interview_short_title = "Ask for a Notice of Appeal"
@@ -50,11 +79,11 @@ objects:
 ---
 id: noa intro
 question: | 
-  You need to file a Notice of Appeal in the ${ trial_court }.
+  You need to file a Notice of Appeal in the **${ trial_court }**.
 subquestion: | 
   **Failure to file a Notice of Appeal in the ${ trial_court } may result in your Motion to Stay being denied.**
   
-  This short online form will help you fill out a Notice of Appeal.
+  The next few questions will help you fill out a Notice of Appeal and then return to the Motion to Stay questions. 
   
 continue button field: noa_intro
 ---
@@ -121,7 +150,7 @@ fields:
   - Date: trial_court_judgment_date
     datatype: date
     max: ${ today() }
---- 
+---
 id: method of service
 question: |
   How will you deliver the required copies of your Notice of Appeal to ${ other_parties }'s attorney(s)?
@@ -169,7 +198,7 @@ subquestion: |
   
   You are required to provide a copy of your Notice of Appeal to the plaintiffs' attorney(s).
   
-  You must submit a copy of your Notice of Appeal to ${ trial_court }.
+  You must submit a copy of your Notice of Appeal to **${ trial_court }**.
   
   Below is a preview of your form.
   
@@ -187,7 +216,7 @@ attachment code: Notice_of_Appeal['final']
 #  final_form_to_file = pdf_concatenate(Notice_of_Appeal)
 ---
 objects:
-  - Notice_of_Appeal: DADict
+  - Notice_of_Appeal: ALDocument.using(title='Notice of Appeal', filename='Notice_of_Appeal', has_addendum=False)
 ---
 attachment:
   - name: Notice of Appeal

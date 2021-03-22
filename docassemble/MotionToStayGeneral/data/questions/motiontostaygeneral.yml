@@ -6,6 +6,9 @@ include:
   - NOA.yml
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
 ---
+modules:
+  - .validation_logic
+---
 reconsider: True
 code: |
   form_to_file_no_cover = al_court_bundle.as_pdf(key = "final")
@@ -208,6 +211,8 @@ fields:
     show if:
       variable: is_first_document
       is: False
+    validate: determine_docket_number_J_P
+      
 ---
 id: explain_need_affidavit
 question: |

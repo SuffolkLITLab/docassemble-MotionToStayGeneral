@@ -310,17 +310,15 @@ fields:
 ---
 id: legal issues raised
 question: |
-  Select the issues of law in your case.
+  Select the issue(s) of law in your case.
 subquestion: |
-  A statement of the issue(s) of law is a brief statement of the legal reason that the single justice should allow your motion to stay.
+  The issue(s) of law is a brief statement of the legal reason that the single justice should allow your motion to stay.
 fields:
   - no label: legal_issues
     datatype: checkboxes
     choices:
       - Whether the judge abused their discretion when they ordered ${ trial_court_denying_order_text }.: Whether the judge abused their discretion when they ordered ${ trial_court_denying_order_text }.
-      - Whether the judge committed an error of law when the judge failed to follow the summary process statute (G.L. c. 239, §§1, et seq.).: Whether the judge committed an error of law when the judge failed to follow the summary process statute (G.L. c. 239, §§1, et seq.).
-      - Whether the judge committed an error of law by failing to follow the Uniform Summary Process Rules.: Whether the judge committed an error of law by failing to follow the Uniform Summary Process Rules.
-      - Whether the judge committed an error of law by allowing the plaintiff to submit evidence that should not have been considered.: Whether the judge committed an error of law by allowing the plaintiff to submit evidence that should not have been considered.
+      - Whether the judge committed an error of law by allowing the other party to submit evidence that should not have been considered.: Whether the judge committed an error of law by allowing the other party to submit evidence that should not have been considered.
       - Whether the judge committed an error of law by not allowing me to submit evidence that should have been considered.: Whether the judge committed an error of law by not allowing me to submit evidence that should have been considered.
       - Whether the judge violated my constitutional right to due process of law.: Whether the judge violated my constitutional right to due process of law.
       - Other: Other

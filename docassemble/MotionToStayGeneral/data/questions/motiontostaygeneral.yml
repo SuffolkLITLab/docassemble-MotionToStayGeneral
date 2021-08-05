@@ -607,7 +607,7 @@ fields:
   - note: |
       **Okay**. You will have a chance to upload multiple documents. 
       You can also add additional pages to this document.
-    show if: x.there_are_any
+    show if: has_evidence
   - First document title: exhibits_attachment.exhibits[0].title
     maxlength: 60 # longer might break TOC
     show if: has_evidence   

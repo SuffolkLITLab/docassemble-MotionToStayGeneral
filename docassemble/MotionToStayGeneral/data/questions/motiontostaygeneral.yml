@@ -577,7 +577,7 @@ question: |
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="Motion_to_Stay", title="Motion to Stay")
-  - al_court_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included], filename="Motion_to_Stay", title="Motion to Stay")
+  - al_court_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included], filename="Motion_to_Stay", title="Motion to Stay", enabled=True)
 ---
 objects:
   - motion_attachment: ALDocument.using(title='Motion to Stay General', filename='Motion_to_Stay_General', has_addendum=False, enabled=True)

@@ -174,7 +174,6 @@ fields:
     min: ${ today() }
 ---
 id: review before signature
-need: form_to_sign
 continue button field: noa_preview_screen
 question: |
   Nearly finished
@@ -183,10 +182,9 @@ subquestion: |
   
   Do not forget to come back to this page to move to the final step of signing. 
   
-   ${ Notice_of_Appeal["preview"] }
+   ${ Notice_of_Appeal.as_pdf(key="preview") }
 
 progress: 95
-attachment code: Notice_of_Appeal["preview"]
 ---
 id: download
 progress: 100
@@ -202,8 +200,7 @@ subquestion: |
   
   Below is a preview of your form.
   
-  ${ final_form_to_file }
-attachment code: Notice_of_Appeal['final']
+  ${ Notice_of_Appeal.as_pdf() }
 #---
 #code: |
 # form_to_sign = pdf_concatenate(preview_doc)

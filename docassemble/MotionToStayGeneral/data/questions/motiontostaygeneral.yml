@@ -2,7 +2,7 @@
 include:
   - docassemble.AssemblyLine:al_package.yml
   - docassemble.MassAccess:massaccess.yml
-  - docassemble.AffidavitofIndigencyMAVC:affidavit_body.yml
+  - docassemble.ALAffidavitOfIndigency:affidavit_body.yml
   - NOA.yml
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
 ---
@@ -55,13 +55,9 @@ code: |
 code: |
   interview_short_title = "Ask the Appeals Court for a Motion to Stay"
 ---
-objects:
-  - prepping_exhibits: DAFile.using(filename='exhibits.pdf')
----
 id: interview order
 mandatory: True
 code: |
-  # has_evidence
   # user_role = "defendant"
   appeals_basic_questions_intro_screen
   info_screen
@@ -92,10 +88,12 @@ code: |
   else:
     explain_need_affidavit
   # WARNING: file size error is not currently translatable
-  file_size_vars
+  # file_size_vars
   if has_evidence:
-    review_exhibits
-    ocr_task
+    exhibits_attachment.exhibits.gather()
+  #if exhibits_attachment.exhibits.there_are_any:
+  #  review_exhibits
+  #  ocr_task
   procedural_history
   statement_of_facts
   procedural_history
@@ -136,21 +134,21 @@ subquestion: |
   Failure to file a Notice of Appeal in the **${ trial_court }** may result in your Motion to Stay being denied.
 continue button field: noa_confirmation
 ---
-need: prepping_exhibits
-code: |
-  ocr_task = background_action('process_exhibits')
+#need: prepping_exhibits
+#code: |
+#  ocr_task = background_action('process_exhibits')
 ---
-event: process_exhibits
-code: |
-  prepping_exhibits.initialize(filename="exhibits.pdf")
-  prepping_exhibits.make_ocr_pdf(exhibits, psm=1)
-  prepping_exhibits.bates_number(prefix='EX-')
-  background_response_action('save_results',results=prepping_exhibits)
+#event: process_exhibits
+#code: |
+#  prepping_exhibits.initialize(filename="exhibits.pdf")
+#  prepping_exhibits.make_ocr_pdf(exhibits, psm=1)
+#  prepping_exhibits.bates_number(prefix='EX-')
+#  background_response_action('save_results',results=prepping_exhibits)
 ---
-event: save_results
-code: |
-  prepped_exhibits = action_argument('results')
-  background_response()
+#event: save_results
+#code: |
+#  prepped_exhibits = action_argument('results')
+#  background_response()
 ---
 id: info screen
 question: |
@@ -185,7 +183,7 @@ question: |
 fields:
   - no label: trial_court
     datatype: object
-    choices: macourts.filter_courts(["Boston Municipal Court",
+    choices: all_courts.filter_courts(["Boston Municipal Court",
       "District Court",
       "Superior Court",
       "Housing Court",
@@ -471,7 +469,6 @@ fields:
     rows: 6
 ---
 id: review before signature
-need: form_to_sign
 continue button field: preview_screen
 question: |
   Nearly finished
@@ -480,7 +477,7 @@ subquestion: |
   
   Do not forget to come back to this page to click to the final step of signing and sending the form to the court. 
   
-   [:file-download: Your Appeal]( ${ al_court_bundle.as_pdf(key='preview').url_for() } )
+  ${ al_user_bundle.as_pdf(key='preview') }
 
 progress: 95
 ---
@@ -495,7 +492,7 @@ question: |
   % endif
 subquestion: |
   % if not defined('email_success') or not email_success:
-  Your form is ready to send to the ${ courts[0] }. It is not delivered until you complete the delivery process.
+  Your form is ready to send to the ${ appeals_court }. It is not delivered until you complete the delivery process.
   
   % if no_notice_of_appeal_filed:
   **You have two documents to deliver:** 
@@ -506,12 +503,12 @@ subquestion: |
   to find out how.
   2. [:file-download: Your Appeal]( ${ al_court_bundle.as_pdf(key='final').url_for() } ), which needs to be delivered to the ${ courts[0] }. You can deliver it below.
   
-  **To deliver your Appeal to the ${ courts[0] }:**
+  **To deliver your Appeal to the ${ appeals_court }:**
   % endif
   
   1. Click "View" below to open the form in a new window.
   1. Click "Download" below to save or print a copy for your records.
-  1. Click "Submit to ${courts[0]}" to send your Appeal to the ${courts[0]}. 
+  1. Click "Submit to ${appeals_court}" to send your Appeal to the ${courts[0]}. 
 
   You will have a chance to add instructions to the clerk and see the cover page before final delivery.
   % else:
@@ -529,12 +526,16 @@ subquestion: |
   % endif
   
   % if not defined('email_success') or not email_success:
-    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
+  % if get_config('debug'):
+  `Debug information: court email is ${court_email}`
+  
+  % endif
+    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(appeals_court.name), icon=send_icon, size="md", color="primary")}
     
   % else:
-    Your email has already been delivered to ${courts[0]}.
+    Your email has already been delivered to ${appeals_court}.
     
-  [:file-download: Your Appeal](${final_form_to_file.url_for(attachment=True)})
+  [:file-download: Your Appeal](${al_court_bundle.as_pdf().url_for(attachment=True)})
  
   % endif
   
@@ -544,24 +545,6 @@ subquestion: |
 
 progress: 100
 section: download
----
-code: |
-  if has_evidence:
-    if not ocr_task.ready():
-      waiting_screen
-    if not prepped_exhibits.ok:
-      exhibits_attachment.enabled = False
-    else:      
-      prepped_exhibits.set_attributes(private=False)
-      if prepped_exhibits.size_in_bytes() < 10 * 1024 * 1024:
-        exhibits_attachment.enabled = True
-      else:
-        exhibits_attachment.enabled = False
-  else:
-    exhibits_attachment.enabled = False
----
-code: |
-  affidavitofindigency_included.enabled = is_first_document and is_indigent
 ---
 code: |
   Notice_of_Appeal.enabled = no_notice_of_appeal_filed
@@ -576,19 +559,18 @@ question: |
   <i class="fas fa-cog fa-spin"></i> Please wait while we process your documents . . . <i class="fas fa-cog fa-spin"></i>
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included, Notice_of_Appeal], filename="Motion_to_Stay", title="Motion to Stay")
-  - al_court_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_included], filename="Motion_to_Stay", title="Motion to Stay", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_attachment, Notice_of_Appeal], filename="Motion_to_Stay", title="Motion to Stay")
+  - al_court_bundle: ALDocumentBundle.using(elements=[motion_attachment, exhibits_attachment, affidavitofindigency_attachment], filename="Motion_to_Stay", title="Motion to Stay", enabled=True)
 ---
 objects:
   - motion_attachment: ALDocument.using(title='Motion to Stay General', filename='Motion_to_Stay_General', has_addendum=False, enabled=True)
-  - exhibits_attachment: ALDocument.using(title='Exhibits', filename='exhibits', has_addendum=False)
-  - affidavitofindigency_included: ALDocument.using(title='Affidavit of Indigency', filename='Affidavit_of_Indigency', has_addendum=False)
+  - exhibits_attachment: ALExhibitDocument.using(title='Exhibits', filename='exhibits', has_addendum=False, include_exhibit_cover_pages=False)
 ---
 code: |
-  exhibits_attachment[i] = prepped_exhibits
+  exhibits_attachment.enabled = has_evidence
 ---
 code: |
-  affidavitofindigency_included[i] = affidavitofindigency_attachment
+  affidavitofindigency_attachment.enabled = is_first_document and is_indigent
 ---
 attachment:
   - name: Motion to Stay General
@@ -596,10 +578,7 @@ attachment:
     filename: Motion_To_Stay_General
     docx template file: Motion_To_Stay_General.docx
 ---
-objects:
-  - exhibits: DAFileList.using(auto_gather=False, gathered=True)
----
-id: record appendix
+id: any exhibits
 question: |
   You are required to submit copies of relevant **Trial Court** documents. 
 subquestion: |  
@@ -616,75 +595,55 @@ subquestion: |
     * filings related to your Motion to Stay in the Trial Court.
     
   If you entered into an agreement for judgment, include a copy of the agreement for judgment.
+  
 fields:
-  - Do you have any documents to share with the judge?: has_evidence
+  - Do you have any documents you are ready to upload?: has_evidence
     datatype: yesnoradio
   - I state that filing a complete record appendix is impracticable.: no_record_statement
     datatype: yesno
     show if: 
       variable: has_evidence      
       is: False
-  - Tap "browse" and choose all of the documents you want to upload at once. You can edit or add additional documents on the next screen.: exhibits
-    datatype: files
+  - note: |
+      **Okay**. You will have a chance to upload multiple documents. 
+      You can also add additional pages to this document.
+    show if: x.there_are_any
+  - First document title: exhibits_attachment.exhibits[0].title
+    maxlength: 60 # longer might break TOC
+    show if: has_evidence   
+  - Upload the first document: exhibits_attachment.exhibits[0].pages
     show if: has_evidence
+    datatype: files
     maximum image size: 1024
-    image upload type: jpeg    
+    image upload type: jpeg        
     accept: |
-      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
-  if has_evidence and sum(exhibit.size_in_bytes() for exhibit in exhibits) > (15 * 1024 * 1024):
-    validation_error("Please upload a file smaller than 15 MB.")
+  if has_evidence:
+    if sum(exhibit.size_in_bytes() for exhibit in exhibits_attachment.exhibits[0].pages) > (15 * 1024 * 1024):
+      validation_error("Upload a file smaller than 15 MB.")
+    try:
+      pdf_concatenate(exhibits_attachment.exhibits[0].pages)
+    except:
+      validation_error("Unable to convert this file. Please upload a new one.", field="exhibits_attachment.exhibits[0].pages")
+    del exhibits_attachment.exhibits[0].pages.gathered  # docassemble sets this attribute but we want to force gathering additional pages
   if not has_evidence and not no_record_statement: 
-    validation_error("You must select the box.")
+    validation_error("You must state that you cannot provide a record appendix to continue.", field="no_record_statement")
 ---
-table: exhibits.table
-rows: exhibits
-allow reordering: True
-columns:
-  - File name: showifdef(row_item.attr_name('filename'))
-  # - Size: row_item.size_in_bytes() / 1024 / 1024
-  - Thumbnail: row_item.show(width="100px")  
-delete buttons: True
+code: |
+  exhibits_attachment.exhibits.there_are_any = has_evidence
 ---
-id: add additional document
-question: |
-  Exhibit document ${i+1}  
-fields:
-  - no label: exhibits[i]
-    datatype: file
-    accept: |
-      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
-validation code: |
-  # Upload field creates a DAFileList
-  # We want it to be a plain DAFile instead
-  if isinstance(exhibits[i], DAFileList):
-    temp_name = exhibits[i].instanceName
-    exhibits[i] = next(iter(exhibits[i]))
-    # Make sure the "instanceName" shows the correct position in the list,
-    # instead of showing a nested DAFileList's instanceName
-    exhibits[i].instanceName = temp_name
----
-id: review exhibits
-question: |
-  Review your exhibits
-subquestion: |
-  Look at the exhibits below. If you want to change the order, use the arrows
-  to move an exhibit up or down in the list. Click "delete" or "add another"
-  to change which exhibits you send to the court.
-  
-  ${ exhibits.table }
-  
-  ${exhibits.add_action() }
-continue button field: review_exhibits 
+code: |
+  prepped_exhibits = exhibits_attachment.as_pdf()
 ---
 id: email to court
 template: email_to_court_template
 subject: |
-  MassAccess submission from ${users} intended for ${courts[0]}
+  MassAccess submission from ${users} intended for ${ appeals_court }
 content: |
-  % if has_evidence and prepped_exhibits.ok and prepped_exhibits.size_in_bytes() > 10 * 1024 * 1024:
+  % if has_evidence and len(exhibits_attachment.exhibits) and prepped_exhibits.size_in_bytes() > 10 * 1024 * 1024:
   **The user provided an attachment that is too large to email.**
-  [Link to exhibits](${ prepped_exhibits.url_for(external=True) } )
+  [Link to exhibits](${ prepped_exhibits.as_pdf().url_for(external=True) } )
   % endif
   
   At ${current_datetime().format_datetime()},
@@ -706,3 +665,65 @@ content: |
   
   Please contact ${users} in the next business day to
   confirm that you received this message.
+---
+##################################
+# Some transition stuff from MAVC to AL
+---
+code: |
+  court_email = court_emails.get('Massachusetts Appeals Court')
+  if not court_email:
+    found_email = False
+  else:
+    found_email = True  
+---
+code: |
+  macourts = all_courts
+---
+code: |
+  courts[0] = all_courts.matching_appeals_court("")
+---
+code: |
+  appeals_court = all_courts.matching_appeals_court("")
+---
+code: |
+  num_package_pages = al_court_bundle.as_pdf().num_pages()
+---
+id: cover page instructions
+question: |
+  Special instructions for the cover page
+subquestion: |
+  Before we deliver your form, you can include instructions on the cover
+  page that will be sent to the clerk at the Massachusetts Appeals Court.
+  
+  For example, you may have special instructions about how and when to reach
+  you that you did not already include in the contact information section.
+  
+  The clerk _may_ print the cover page and include it in the public file.
+
+  Are there any instructions that you would like to give to the clerk that will
+  receive your forms?
+fields:
+  - Information for clerk: comments_to_clerk
+    datatype: area
+    rows: 4
+    required: False
+help:
+  label: |
+    What to include?
+  content: |
+    Include information that you want the clerk to know. The clerk is the person
+    who will receive your paperwork and put it in an official court file. The
+    clerk is not a decision maker on your case.
+
+    Do not include information that is meant for the judge or the other party.
+    Do not include information that is meant to be part of your official case.
+
+    There is a chance this information may end up in the public court file, so
+    do not include sensitive or private information.
+---
+attachment:
+  variable name: exhibits_attachment.table_of_contents
+  docx template file: exhibit_table_of_contents.docx
+  field code:
+    exhibits: raw(exhibits_attachment.exhibits)
+    include_exhibit_cover_pages: raw(False)

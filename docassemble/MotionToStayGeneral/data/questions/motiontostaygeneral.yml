@@ -6,6 +6,50 @@ include:
   - NOA.yml
   - docassemble.MassAppealsCourt:appeals-basic-questions.yml
 ---
+metadata:
+  title: |
+    Massachusetts Appeals Court Motion to Stay Eviction
+  short title: |
+    Motion to Stay Eviction
+  description: |
+    This interview assembles an appeal of a Housing Court eviction order.
+  can_I_use_this_form: |
+    If a judge has ordered you to be evicted, use this interview to appeal the trial court judge's order and ask the Appeals Court to prevent your eviction.
+  before_you_start: |
+    Before using this interview you must ask for a stay in the trial court.
+
+    Gather the relevant court documents, including:
+
+    * The trial court's docket
+    * The complaint
+    * Your answer
+    * The judgment
+    * Filings related to your motion to stay in the trial court
+  maturity: production
+  estimated_completion_minutes: 35
+  estimated_completion_delta: 10
+  languages:
+    - en
+  help_page_url: https://www.mass.gov/guides/housing-appeals-guide
+  help_page_title: Housing Appeals Guide: 
+  LIST_topics: # Preferred
+    - CO-07-02-00-00
+  tags: # Should be used if LIST_topics not populated
+    - appeal,eviction,motion
+  # Use LMSS jurisdiction codes?
+  jurisdiction: NAM-US-US+MA
+  original_form: https://www.mass.gov/lists/restraining-orderabuse-prevention-order-court-forms
+  review_date: 2024-06-13
+  form_titles:
+    - Notice of Appeal
+    - Motion to Stay Pursuant to Mass. R. A. P. 6(A)
+    - Certificate of service
+    - Affidavit of Indigency
+  fees:
+    - Filing fee: 0.00
+  update_notes: |
+    Interview drafted in 2020 with minor updates thereafter. Reviewed in 2024 and no form or law changes require updates.
+---
 reconsider: True
 code: |
   form_to_file_no_cover = al_court_bundle.as_pdf(key = "final")

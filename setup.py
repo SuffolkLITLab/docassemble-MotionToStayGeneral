@@ -44,8 +44,8 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
 
 setup(name='docassemble.MotionToStayGeneral',
       version='0.2.1',
-      description=('A docassemble extension.'),
-      long_description='# docassemble.MotionToStayGeneral\r\n\r\nA docassemble extension.\r\n\r\n## Author\r\n\r\nMia Bonardi, mbonardi@su.suffolk.edu\r\n\r\n',
+      description=('Massachusetts Appeals Court Motion to Stay Eviction'),
+      long_description='A Docassemble interview for a Massachusetts Appeals Court Motion to Stay Eviction',
       long_description_content_type='text/markdown',
       author='Mia Bonardi',
       author_email='mbonardi@su.suffolk.edu',

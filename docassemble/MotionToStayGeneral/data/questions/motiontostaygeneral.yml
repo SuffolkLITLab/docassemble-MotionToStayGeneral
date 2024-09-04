@@ -31,7 +31,7 @@ metadata:
   languages:
     - en
   help_page_url: https://www.mass.gov/guides/housing-appeals-guide
-  help_page_title: Housing Appeals Guide: 
+  help_page_title: Housing Appeals Guide
   LIST_topics: # Preferred
     - CO-07-02-00-00
   tags: # Should be used if LIST_topics not populated

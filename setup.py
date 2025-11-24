@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -51,8 +51,7 @@ setup(name='docassemble.MotionToStayGeneral',
       author_email='mbonardi@su.suffolk.edu',
       license='The MIT License (MIT)',
       url='https://docassemble.org',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
+      packages=find_namespace_packages(),
       install_requires=['docassemble.ALAffidavitOfIndigency>=2.0.3', 'docassemble.AssemblyLine>=2.23.0', 'docassemble.MassAppealsCourt'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MotionToStayGeneral/', package='docassemble.MotionToStayGeneral'),

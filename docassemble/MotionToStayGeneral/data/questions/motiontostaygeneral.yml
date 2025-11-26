@@ -254,6 +254,8 @@ fields:
     show if:
       variable: is_first_document
       is: False
+    validate: |
+      lambda y: validation_error("There should not be a J in your docket number. Select 'Yes' above and continue.") if 'J' in y.upper() else True
 ---
 id: explain_need_affidavit
 question: |

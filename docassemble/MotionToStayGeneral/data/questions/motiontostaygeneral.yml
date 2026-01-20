@@ -63,7 +63,7 @@ metadata:
     - motion
   # Use LMSS jurisdiction codes?
   jurisdiction: NAM-US-US+MA
-  original_form: https://www.mass.gov/lists/restraining-orderabuse-prevention-order-court-forms
+  # original_form: https://www.mass.gov/lists/restraining-orderabuse-prevention-order-court-forms
   review_date: 2026-01-20
   form_titles:
     - Notice of Appeal in the Massachusetts Trial Court

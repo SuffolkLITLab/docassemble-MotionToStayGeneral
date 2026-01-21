@@ -8,13 +8,34 @@ include:
 ---
 metadata:
   title: |
-    Massachusetts Appeals Court Motion to Stay Eviction
+    Massachusetts Appeals Court Motion to Stay Judgment General
   short title: |
-    Motion to Stay Eviction
+    Motion to Stay General
   description: |
-    This interview assembles an appeal of a Housing Court eviction order.
+    This interview makes a motion to stay in the Massachusetts Appeals Court.
+
+    A motion to stay asks the Appeals Court to stop the enforcement of a decision by another judge.
+    It makes it so you can keep everything as-is, without paying money or having another consequence,
+    until the appeals court judge can decide if the trial court judge made a mistake.
+
+    When a judge decides to stop a decision, it is called a stay of the judgment.
+
+    You can use this motion to make sure that you are not hurt by the trial court judge's decision
+    during the time that it takes for the Appeals Court to listen to your case.
+
+    If you are asking the court to pause an eviction case, you should use the [Appeal or Stay Your 
+    Eviction](https://courtformsonline.org/ma/forms/appeal-or-stay-your-eviction) interview instead.
+
+    This interview will let you directly send the completed motion to the Appeals Court by email.
   can_I_use_this_form: |
-    If a judge has ordered you to be evicted, use this interview to appeal the trial court judge's order and ask the Appeals Court to prevent your eviction.
+    You can use this interview to ask the Appeals Court to pause (stay) your judgment if all of the following apply:
+
+    * You have already asked the trial court for a stay of the judgment.
+    * The trial court has denied your request for a stay.
+
+    You also need to file a notice of appeal in the trial court before the Appeals Court will listen to this motion.
+    But if you did not file one yet, this interview can help you make the notice of appeal. You then need to file it
+    in the trial court yourself.
   before_you_start: |
     Before using this interview you must ask for a stay in the trial court.
 
@@ -22,16 +43,18 @@ metadata:
 
     * The trial court's docket
     * The complaint
-    * Your answer
+    * Any answer
     * The judgment
     * Filings related to your motion to stay in the trial court
   maturity: production
   estimated_completion_minutes: 35
   estimated_completion_delta: 10
+  integrated_efiling: False
+  integrated_email_filing: True  
   languages:
     - en
-  help_page_url: https://www.mass.gov/guides/housing-appeals-guide
-  help_page_title: Housing Appeals Guide
+  help_page_url: https://www.mass.gov/info-details/rule-6-motions-to-stay
+  help_page_title: Rule 6 Motions to Stay
   LIST_topics: # Preferred
     - CO-07-02-00-00
   tags: # Should be used if LIST_topics not populated
@@ -40,13 +63,13 @@ metadata:
     - motion
   # Use LMSS jurisdiction codes?
   jurisdiction: NAM-US-US+MA
-  original_form: https://www.mass.gov/lists/restraining-orderabuse-prevention-order-court-forms
-  review_date: 2025-07-30
+  # original_form: https://www.mass.gov/lists/restraining-orderabuse-prevention-order-court-forms
+  review_date: 2026-01-20
   form_titles:
-    - Notice of Appeal
-    - Motion to Stay Pursuant to Mass. R. A. P. 6(A)
+    - Notice of Appeal in the Massachusetts Trial Court
+    - Motion to Stay Pursuant to Mass. R. A. P. 6(A) (Rule 6 Motion to Stay)
     - Certificate of service
-    - Affidavit of Indigency
+    - Affidavit of Indigency (Fee waiver)
   fees:
     - Filing fee: 0.00
   update_notes: |

@@ -271,7 +271,7 @@ id: appeals court docket number
 question: |
   Is this Motion to Stay the first document you are filing in the **Appeals Court**?
 fields:
-  - no label: is_first_document
+  - "Is this Motion to Stay the first document you are filing in the **Appeals Court**?": is_first_document
     datatype: yesnoradio
   - What is the **Appeals Court** docket number for your case?: appeals_court_docket_number
     show if:
@@ -519,7 +519,7 @@ question: |
 subquestion:  |
   Your motion must show that the stay does not harm the public interest.
 fields:
-  - no label: public_interest_harm_yesno
+  - "Does your Motion to Stay have an effect on the public interest?": public_interest_harm_yesno
     datatype: yesnoradio
   - What effect would your Motion to Stay have on the public interest?: public_interest_harm
     input type: area 
@@ -625,6 +625,7 @@ code: |
 ---
 event: waiting_screen
 reload: True
+id: "i class fas fa cog fa spin i please wait while we process your documents i class fas fa cog fa spin i"
 question: |
   <i class="fas fa-cog fa-spin"></i> Please wait while we process your documents . . . <i class="fas fa-cog fa-spin"></i>
 ---

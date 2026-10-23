@@ -136,8 +136,8 @@ fields:
   - no label: judgment_appealing
     input type: radio
     choices:
-      - A Rule 60(b) motion to reconsider: a Rule 60(b) Motion to Reconsider
-      - A motion to stay execution: a Motion to Stay Execution
+      - A Rule 60(b) Motion to Reconsider: a Rule 60(b) Motion to Reconsider
+      - A Motion to Stay Execution: a Motion to Stay Execution
       - Other: Other
   - Other: other_judgment_appealing
     js show if: |
